@@ -1,0 +1,598 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 54;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		02396C93147AA087F342FB13 /* EmotionGaugeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B937111A985B7562E0B03930 /* EmotionGaugeView.swift */; };
+		0F45D00A7A8FA8EBEADA75E1 /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9BC8829A10837D5AB6A29E2 /* CustomButton.swift */; };
+		16EDAA1D997202861330B822 /* CharacterCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B05281511CAC827D34668BD /* CharacterCardView.swift */; };
+		1DDA6CBFEFF0C5FA370650BD /* MotionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DD485A9DC0851D6F3C09D1 /* MotionData.swift */; };
+		1FF4CF3C892965BC7754E580 /* CharacterSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2C9D72CA50F1141E0C815F2 /* CharacterSelectionView.swift */; };
+		220B55EDE7E7C75BD0A234CA /* AdBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C6285FF1207384328A3702 /* AdBannerView.swift */; };
+		276883ABBCDE30EB941DF997 /* Character.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901284848071C3F18169D7CB /* Character.swift */; };
+		3E0AEB00331F2F9A4AFDBDEB /* AudioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3185658450F49C2350457A3B /* AudioService.swift */; };
+		452DB140EE56EE89BB6B93AD /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B1656E29DE2722A57AC4E09 /* SettingsView.swift */; };
+		45AB6733C3D9796E943EB52C /* CharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1D757575110EB5DBDD8F9A /* CharacterView.swift */; };
+		47EE6BB9DB42B51DC133D405 /* MotionAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCBA3A09D108F2A101E2487 /* MotionAnalyzer.swift */; };
+		4CB45DC811C3D3D65B5485C6 /* MotionAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82D9DA2858C275EE81261041 /* MotionAnalyzerTests.swift */; };
+		567F5642827B23F95302EEBF /* EmotionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9623DE448249CE16DFBCB208 /* EmotionState.swift */; };
+		5F2798B44419146E4947DBED /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5E5241164D4E01E122C7D4 /* MainView.swift */; };
+		738A4D9B2A9B4975BCE7BCD1 /* DialogueManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B7B9893A63A50651ECC5F9 /* DialogueManager.swift */; };
+		79A72BAABBCAB0386A186BC5 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85766791E914AF3571943026 /* ContentView.swift */; };
+		8995017F07566559EBA0069A /* PurchaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9338BDA17D063EE16B2464 /* PurchaseService.swift */; };
+		9A5BEED9F1AD361FC8ADEE67 /* CharacterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9BDA000F9B18F93EEB13CB1 /* CharacterManager.swift */; };
+		B762C2149B78065E480DA48F /* MotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504C76FCA32D2DE7DE1B6959 /* MotionService.swift */; };
+		BD5BEF6B175CEF35EBA5DC79 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5658C9CE9C7FFA7D5867C047 /* MainViewModel.swift */; };
+		C6B7635BF5C5380D2FF4DD2C /* SyncaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F879A041380856A8F97ECBE1 /* SyncaApp.swift */; };
+		D08C1FDE0916F4007D1C5BEC /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6098C0ABA50ED85D2D597313 /* Extensions.swift */; };
+		D3A0EE0BBC6264734867843A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 297E512ED983A36FD8DC3C53 /* Assets.xcassets */; };
+		FCD9E95F18E583B1E7D4826A /* ControlPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC1CB62EB4EA3615A137A8C /* ControlPanelView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D8DDC0FD88F0100A2C224956 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D4E9212D72D088D42D186D5F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 367994283DCCC1E465ECF327;
+			remoteInfo = Synca;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0A1D757575110EB5DBDD8F9A /* CharacterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterView.swift; sourceTree = "<group>"; };
+		0A2D9251FBF177DC7AB60C96 /* SyncaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SyncaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0AC1CB62EB4EA3615A137A8C /* ControlPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlPanelView.swift; sourceTree = "<group>"; };
+		0FCBA3A09D108F2A101E2487 /* MotionAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionAnalyzer.swift; sourceTree = "<group>"; };
+		1B05281511CAC827D34668BD /* CharacterCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterCardView.swift; sourceTree = "<group>"; };
+		297E512ED983A36FD8DC3C53 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		29C6285FF1207384328A3702 /* AdBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdBannerView.swift; sourceTree = "<group>"; };
+		3185658450F49C2350457A3B /* AudioService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioService.swift; sourceTree = "<group>"; };
+		504C76FCA32D2DE7DE1B6959 /* MotionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionService.swift; sourceTree = "<group>"; };
+		526A3C038EFA531DBE744086 /* Synca.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Synca.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5658C9CE9C7FFA7D5867C047 /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
+		6098C0ABA50ED85D2D597313 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		7E2740171A3EAF647F7D7344 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		82D9DA2858C275EE81261041 /* MotionAnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionAnalyzerTests.swift; sourceTree = "<group>"; };
+		85766791E914AF3571943026 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		901284848071C3F18169D7CB /* Character.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Character.swift; sourceTree = "<group>"; };
+		90DD485A9DC0851D6F3C09D1 /* MotionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionData.swift; sourceTree = "<group>"; };
+		9623DE448249CE16DFBCB208 /* EmotionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionState.swift; sourceTree = "<group>"; };
+		9B1656E29DE2722A57AC4E09 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B937111A985B7562E0B03930 /* EmotionGaugeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionGaugeView.swift; sourceTree = "<group>"; };
+		BC9338BDA17D063EE16B2464 /* PurchaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseService.swift; sourceTree = "<group>"; };
+		CC5E5241164D4E01E122C7D4 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		D9BC8829A10837D5AB6A29E2 /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
+		E1B7B9893A63A50651ECC5F9 /* DialogueManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogueManager.swift; sourceTree = "<group>"; };
+		E2C9D72CA50F1141E0C815F2 /* CharacterSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterSelectionView.swift; sourceTree = "<group>"; };
+		F0D579A38443A4B29178EECA /* Synca.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Synca.entitlements; sourceTree = "<group>"; };
+		F879A041380856A8F97ECBE1 /* SyncaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncaApp.swift; sourceTree = "<group>"; };
+		F9BDA000F9B18F93EEB13CB1 /* CharacterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterManager.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		14F75BB99C2B517F620A7FDA /* App */ = {
+			isa = PBXGroup;
+			children = (
+				85766791E914AF3571943026 /* ContentView.swift */,
+				F879A041380856A8F97ECBE1 /* SyncaApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		24D345F120CF879A2AF4A0E6 = {
+			isa = PBXGroup;
+			children = (
+				5B0F25FDA16F0B9A85375B9E /* Synca */,
+				F4305579112F7E9D3208CCB3 /* SyncaTests */,
+				7E48A3B0CC66F350B5DD8C2F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4F26ED5D952189C501D99C80 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				3185658450F49C2350457A3B /* AudioService.swift */,
+				504C76FCA32D2DE7DE1B6959 /* MotionService.swift */,
+				BC9338BDA17D063EE16B2464 /* PurchaseService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		5B0F25FDA16F0B9A85375B9E /* Synca */ = {
+			isa = PBXGroup;
+			children = (
+				14F75BB99C2B517F620A7FDA /* App */,
+				857A287D4C9C62BFDCEF0F0B /* Managers */,
+				F5A033D798A8E4564BB83F07 /* Models */,
+				E734C36D42C051EE7DD141F7 /* Resources */,
+				4F26ED5D952189C501D99C80 /* Services */,
+				F2972114AC98695CBEA76EB5 /* ViewModels */,
+				E9DDFADEE6776ECBABBC1495 /* Views */,
+				297E512ED983A36FD8DC3C53 /* Assets.xcassets */,
+				F0D579A38443A4B29178EECA /* Synca.entitlements */,
+			);
+			path = Synca;
+			sourceTree = "<group>";
+		};
+		601E368631C3075E7F6DBE89 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				29C6285FF1207384328A3702 /* AdBannerView.swift */,
+				D9BC8829A10837D5AB6A29E2 /* CustomButton.swift */,
+				6098C0ABA50ED85D2D597313 /* Extensions.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		7C81A1B725F5602A70D3EA7C /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				9B1656E29DE2722A57AC4E09 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		7E48A3B0CC66F350B5DD8C2F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				526A3C038EFA531DBE744086 /* Synca.app */,
+				0A2D9251FBF177DC7AB60C96 /* SyncaTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		857A287D4C9C62BFDCEF0F0B /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				F9BDA000F9B18F93EEB13CB1 /* CharacterManager.swift */,
+				E1B7B9893A63A50651ECC5F9 /* DialogueManager.swift */,
+			);
+			path = Managers;
+			sourceTree = "<group>";
+		};
+		9CB57AAA1ADF8A3C01176BD8 /* Character */ = {
+			isa = PBXGroup;
+			children = (
+				1B05281511CAC827D34668BD /* CharacterCardView.swift */,
+				E2C9D72CA50F1141E0C815F2 /* CharacterSelectionView.swift */,
+			);
+			path = Character;
+			sourceTree = "<group>";
+		};
+		B610776179E836EE6090533A /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				0A1D757575110EB5DBDD8F9A /* CharacterView.swift */,
+				0AC1CB62EB4EA3615A137A8C /* ControlPanelView.swift */,
+				B937111A985B7562E0B03930 /* EmotionGaugeView.swift */,
+				CC5E5241164D4E01E122C7D4 /* MainView.swift */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		E734C36D42C051EE7DD141F7 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				7E2740171A3EAF647F7D7344 /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		E9DDFADEE6776ECBABBC1495 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				9CB57AAA1ADF8A3C01176BD8 /* Character */,
+				601E368631C3075E7F6DBE89 /* Common */,
+				B610776179E836EE6090533A /* Main */,
+				7C81A1B725F5602A70D3EA7C /* Settings */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F2972114AC98695CBEA76EB5 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				5658C9CE9C7FFA7D5867C047 /* MainViewModel.swift */,
+				0FCBA3A09D108F2A101E2487 /* MotionAnalyzer.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		F4305579112F7E9D3208CCB3 /* SyncaTests */ = {
+			isa = PBXGroup;
+			children = (
+				82D9DA2858C275EE81261041 /* MotionAnalyzerTests.swift */,
+			);
+			path = SyncaTests;
+			sourceTree = "<group>";
+		};
+		F5A033D798A8E4564BB83F07 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				901284848071C3F18169D7CB /* Character.swift */,
+				9623DE448249CE16DFBCB208 /* EmotionState.swift */,
+				90DD485A9DC0851D6F3C09D1 /* MotionData.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		367994283DCCC1E465ECF327 /* Synca */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C8BFD2459950DB1F7EFDCA97 /* Build configuration list for PBXNativeTarget "Synca" */;
+			buildPhases = (
+				87CBD3A84F8D4EAD3916D19A /* Sources */,
+				EC1C7863D633B8FB012D4164 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Synca;
+			packageProductDependencies = (
+			);
+			productName = Synca;
+			productReference = 526A3C038EFA531DBE744086 /* Synca.app */;
+			productType = "com.apple.product-type.application";
+		};
+		7DA4A3E8F3F7D83E697DCD1A /* SyncaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0DDBB9E6482CABBD3791350E /* Build configuration list for PBXNativeTarget "SyncaTests" */;
+			buildPhases = (
+				C8B720542F17E6EB137C26D4 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				682CC76011FE2AD43AEEE188 /* PBXTargetDependency */,
+			);
+			name = SyncaTests;
+			packageProductDependencies = (
+			);
+			productName = SyncaTests;
+			productReference = 0A2D9251FBF177DC7AB60C96 /* SyncaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D4E9212D72D088D42D186D5F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					367994283DCCC1E465ECF327 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					7DA4A3E8F3F7D83E697DCD1A = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 4C5599F5C91277FF882DFE61 /* Build configuration list for PBXProject "Synca" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 24D345F120CF879A2AF4A0E6;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 54;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				367994283DCCC1E465ECF327 /* Synca */,
+				7DA4A3E8F3F7D83E697DCD1A /* SyncaTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EC1C7863D633B8FB012D4164 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D3A0EE0BBC6264734867843A /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		87CBD3A84F8D4EAD3916D19A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				220B55EDE7E7C75BD0A234CA /* AdBannerView.swift in Sources */,
+				3E0AEB00331F2F9A4AFDBDEB /* AudioService.swift in Sources */,
+				276883ABBCDE30EB941DF997 /* Character.swift in Sources */,
+				16EDAA1D997202861330B822 /* CharacterCardView.swift in Sources */,
+				9A5BEED9F1AD361FC8ADEE67 /* CharacterManager.swift in Sources */,
+				1FF4CF3C892965BC7754E580 /* CharacterSelectionView.swift in Sources */,
+				45AB6733C3D9796E943EB52C /* CharacterView.swift in Sources */,
+				79A72BAABBCAB0386A186BC5 /* ContentView.swift in Sources */,
+				FCD9E95F18E583B1E7D4826A /* ControlPanelView.swift in Sources */,
+				0F45D00A7A8FA8EBEADA75E1 /* CustomButton.swift in Sources */,
+				738A4D9B2A9B4975BCE7BCD1 /* DialogueManager.swift in Sources */,
+				02396C93147AA087F342FB13 /* EmotionGaugeView.swift in Sources */,
+				567F5642827B23F95302EEBF /* EmotionState.swift in Sources */,
+				D08C1FDE0916F4007D1C5BEC /* Extensions.swift in Sources */,
+				5F2798B44419146E4947DBED /* MainView.swift in Sources */,
+				BD5BEF6B175CEF35EBA5DC79 /* MainViewModel.swift in Sources */,
+				47EE6BB9DB42B51DC133D405 /* MotionAnalyzer.swift in Sources */,
+				1DDA6CBFEFF0C5FA370650BD /* MotionData.swift in Sources */,
+				B762C2149B78065E480DA48F /* MotionService.swift in Sources */,
+				8995017F07566559EBA0069A /* PurchaseService.swift in Sources */,
+				452DB140EE56EE89BB6B93AD /* SettingsView.swift in Sources */,
+				C6B7635BF5C5380D2FF4DD2C /* SyncaApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C8B720542F17E6EB137C26D4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4CB45DC811C3D3D65B5485C6 /* MotionAnalyzerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		682CC76011FE2AD43AEEE188 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 367994283DCCC1E465ECF327 /* Synca */;
+			targetProxy = D8DDC0FD88F0100A2C224956 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1E2C3823D3D628D8D03079FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		2BB91FB2798DB9DFC240971B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Synca/Synca.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = Synca/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.synca.app;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		3286BA40E40744F372927988 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.synca.app.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Synca.app/Synca";
+			};
+			name = Release;
+		};
+		451EC206C0EF9E2CB6A209C3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.synca.app.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Synca.app/Synca";
+			};
+			name = Debug;
+		};
+		A4AA44FB80B883E3C2579CF3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		D7AD5702842C87F339E9DED3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Synca/Synca.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = Synca/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.synca.app;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0DDBB9E6482CABBD3791350E /* Build configuration list for PBXNativeTarget "SyncaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				451EC206C0EF9E2CB6A209C3 /* Debug */,
+				3286BA40E40744F372927988 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4C5599F5C91277FF882DFE61 /* Build configuration list for PBXProject "Synca" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1E2C3823D3D628D8D03079FC /* Debug */,
+				A4AA44FB80B883E3C2579CF3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C8BFD2459950DB1F7EFDCA97 /* Build configuration list for PBXNativeTarget "Synca" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D7AD5702842C87F339E9DED3 /* Debug */,
+				2BB91FB2798DB9DFC240971B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D4E9212D72D088D42D186D5F /* Project object */;
+}
