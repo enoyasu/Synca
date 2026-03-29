@@ -92,8 +92,9 @@ final class PurchaseService: ObservableObject {
             for await result in Transaction.updates {
                 guard let self else { return }
                 if case .verified(let transaction) = result {
-                    await MainActor.run {
-                        self.purchasedProductIDs.insert(transaction.productID)
+                    let productID = transaction.productID
+                    _ = await MainActor.run {
+                        self.purchasedProductIDs.insert(productID)
                     }
                     await transaction.finish()
                 }
