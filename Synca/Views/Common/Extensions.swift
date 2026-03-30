@@ -68,6 +68,7 @@ extension Bundle {
 // MARK: - App Preferences
 enum AppPreferenceKey {
     static let appLanguage = "app_language"
+    static let gaugeDecayLevel = "gauge_decay_level"
 }
 
 enum AppLanguage: String, CaseIterable, Identifiable {
@@ -109,6 +110,7 @@ enum L10nKey {
     case sensitivity
     case volume
     case sensitivityPreview
+    case gaugeDecaySpeed
     case version
     case build
     case premium
@@ -174,6 +176,8 @@ enum L10n {
         case (.volume, .english): return "Volume"
         case (.sensitivityPreview, .japanese): return "感度プレビュー"
         case (.sensitivityPreview, .english): return "Sensitivity Preview"
+        case (.gaugeDecaySpeed, .japanese): return "ゲージ減少速度"
+        case (.gaugeDecaySpeed, .english): return "Gauge Decay Speed"
         case (.version, .japanese): return "バージョン"
         case (.version, .english): return "Version"
         case (.build, .japanese): return "ビルド"
@@ -231,6 +235,24 @@ enum L10n {
             case ..<2.0: return "High"
             default:     return "Max"
             }
+        }
+    }
+
+    static func gaugeDecayValueLabel(level: Int, seconds: Int, language: AppLanguage) -> String {
+        switch language {
+        case .japanese:
+            return "Lv\(level)・約\(seconds)秒"
+        case .english:
+            return "Lv\(level) • ~\(seconds)s"
+        }
+    }
+
+    static func gaugeDecayHint(seconds: Int, language: AppLanguage) -> String {
+        switch language {
+        case .japanese:
+            return "振動が止まると、ゲージは約\(seconds)秒で0になります。"
+        case .english:
+            return "When vibration stops, the gauge drops to zero in about \(seconds)s."
         }
     }
 

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 設定画面（感度・音量・バージョン情報）
+/// 設定画面（感度・音量・ゲージ減衰・バージョン情報）
 struct SettingsView: View {
     @EnvironmentObject var viewModel: MainViewModel
     @Environment(\.dismiss) private var dismiss
@@ -67,6 +67,10 @@ struct SettingsView: View {
                                     gaugeInfo(range: "0 〜 30", label: L10n.text(.calmState, language: language), color: Color(hex: "6B9FD4"))
                                     gaugeInfo(range: "30 〜 70", label: L10n.text(.excitedState, language: language), color: Color(hex: "A855F7"))
                                     gaugeInfo(range: "70 〜 100", label: L10n.text(.specialState, language: language), color: Color(hex: "F59E0B"))
+
+                                    Divider().background(Color.white.opacity(0.1))
+
+                                    gaugeDecayControl
                                 }
                             }
 
@@ -201,10 +205,46 @@ struct SettingsView: View {
         L10n.sensitivityLabel(value, language: language)
     }
 
+    private var gaugeDecayControl: some View {
+        let seconds = viewModel.gaugeDecayDurationSeconds(level: viewModel.gaugeDecayLevel)
+
+        return VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                HStack(spacing: 6) {
+                    Image(systemName: "arrow.down.forward")
+                        .font(.system(size: 13))
+                        .foregroundColor(Color(hex: "A78BFA"))
+                    Text(L10n.text(.gaugeDecaySpeed, language: language))
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white)
+                }
+                Spacer()
+                Text(L10n.gaugeDecayValueLabel(level: viewModel.gaugeDecayLevel, seconds: seconds, language: language))
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .foregroundColor(Color(hex: "A78BFA"))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+
+            Picker("", selection: $viewModel.gaugeDecayLevel) {
+                ForEach(1...5, id: \.self) { level in
+                    Text("\(level)").tag(level)
+                }
+            }
+            .pickerStyle(.segmented)
+
+            Text(L10n.gaugeDecayHint(seconds: seconds, language: language))
+                .font(.system(size: 12))
+                .foregroundColor(.white.opacity(0.6))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
     private func resetSettings() {
         withAnimation {
             viewModel.sensitivity = 1.0
             viewModel.volume = 0.8
+            viewModel.gaugeDecayLevel = 3
         }
     }
 }

@@ -31,6 +31,16 @@ final class MainViewModel: ObservableObject {
     @Published var volume: Double = 0.8 {
         didSet { audioService.volume = volume }
     }
+    @Published var gaugeDecayLevel: Int = 3 {
+        didSet {
+            let clamped = clampedDecayLevel(gaugeDecayLevel)
+            if clamped != gaugeDecayLevel {
+                gaugeDecayLevel = clamped
+                return
+            }
+            UserDefaults.standard.set(clamped, forKey: AppPreferenceKey.gaugeDecayLevel)
+        }
+    }
 
     // MARK: - Dependencies
     private let motionService: MotionService
@@ -54,10 +64,15 @@ final class MainViewModel: ObservableObject {
         static let preMaxTargetDuration: TimeInterval = 30
         static let maxTargetDuration: TimeInterval = 10
 
-        static let decayRate: Double = 0.003
         static let decayInterval: TimeInterval = 0.1
         static let minMotionDelta: Double = 1.0 / 120.0
         static let maxMotionDelta: Double = 0.2
+        static let activeMotionThreshold: Double = 0.03
+        static let motionInactivityDelay: TimeInterval = 0.35
+
+        static let minDecayLevel: Int = 1
+        static let defaultDecayLevel: Int = 3
+        static let maxDecayLevel: Int = 5
 
         // 振動強度の係数化
         static let intensityDeadZone: Double = 0.015
@@ -78,6 +93,7 @@ final class MainViewModel: ObservableObject {
     private var lastAnimationTime: Date = .distantPast
     private var lastMotionTimestamp: TimeInterval?
     private var lastGaugePulseTimestamp: TimeInterval = 0
+    private var lastActiveMotionTimestamp: TimeInterval?
     private var currentLanguage: AppLanguage {
         let raw = UserDefaults.standard.string(forKey: AppPreferenceKey.appLanguage) ?? AppLanguage.japanese.rawValue
         return AppLanguage(rawValue: raw) ?? .japanese
@@ -100,6 +116,7 @@ final class MainViewModel: ObservableObject {
         self.purchaseService = purchaseService ?? PurchaseService()
         self.availableCharacters = characterManager.allCharacters
         self.currentCharacter = characterManager.defaultCharacter
+        self.gaugeDecayLevel = Self.loadDecayLevel()
         currentDialogue = dialogueManager.getDialogue(
             for: .calm,
             characterId: currentCharacter.id,
@@ -118,6 +135,7 @@ final class MainViewModel: ObservableObject {
         motionAnalyzer.reset()
         lastMotionTimestamp = nil
         lastGaugePulseTimestamp = 0
+        lastActiveMotionTimestamp = nil
         motionService.start()
         isRunning = true
     }
@@ -126,6 +144,7 @@ final class MainViewModel: ObservableObject {
         motionService.stop()
         isRunning = false
         lastMotionTimestamp = nil
+        lastActiveMotionTimestamp = nil
         characterAnimationState = .idle
     }
 
@@ -196,12 +215,17 @@ final class MainViewModel: ObservableObject {
 
         // ゲージ増加（感度ごとの目標時間 + 振動強度係数）
         let increaseRate = gaugeIncreasePerSecond(for: sensitivity)
-        let intensityFactor = gaugeIntensityFactor(
+        let normalizedIntensity = normalizedMotionIntensity(
             smoothedIntensity: result.smoothedIntensity,
             sensitivity: sensitivity
         )
+        let intensityFactor = gaugeIntensityFactor(normalizedIntensity: normalizedIntensity)
         let increase = increaseRate * intensityFactor * delta
         emotionGauge = min(emotionGauge + increase, 100.0)
+
+        if normalizedIntensity >= GaugeTuning.activeMotionThreshold {
+            lastActiveMotionTimestamp = data.timestamp
+        }
 
         // 振動イベントをUIへ通知（ゲージの増加を視覚化）
         let pulseInput = max(result.intensity, result.smoothedIntensity)
@@ -236,9 +260,7 @@ final class MainViewModel: ObservableObject {
 
     private func gaugeIncreasePerSecond(for sensitivity: Double) -> Double {
         let targetDuration = targetFillDuration(for: sensitivity)
-        let targetNetIncrease = 100.0 / max(targetDuration, 1)
-        let decayPerSecond = GaugeTuning.decayRate / GaugeTuning.decayInterval
-        return targetNetIncrease + decayPerSecond
+        return 100.0 / max(targetDuration, 1)
     }
 
     private func targetFillDuration(for sensitivity: Double) -> TimeInterval {
@@ -268,10 +290,13 @@ final class MainViewModel: ObservableObject {
         return exp(log(from) + (log(to) - log(from)) * p)
     }
 
-    private func gaugeIntensityFactor(smoothedIntensity: Double, sensitivity: Double) -> Double {
+    private func normalizedMotionIntensity(smoothedIntensity: Double, sensitivity: Double) -> Double {
         // MotionService側で感度が乗算済みのため、ここでは一度感度で正規化して
-        // 「実際の振動の強さ」に応じて係数化する。
-        let normalizedIntensity = smoothedIntensity / max(sensitivity, GaugeTuning.minSensitivity)
+        // 「実際の振動の強さ」を使う。
+        smoothedIntensity / max(sensitivity, GaugeTuning.minSensitivity)
+    }
+
+    private func gaugeIntensityFactor(normalizedIntensity: Double) -> Double {
         let adjusted = max(normalizedIntensity - GaugeTuning.intensityDeadZone, 0)
         let reference = max(GaugeTuning.referenceIntensity - GaugeTuning.intensityDeadZone, 0.0001)
         let normalized = adjusted / reference
@@ -283,7 +308,46 @@ final class MainViewModel: ObservableObject {
             if characterAnimationState != .idle { characterAnimationState = .idle }
             return
         }
-        emotionGauge = max(emotionGauge - GaugeTuning.decayRate, 0.0)
+        guard shouldDecayGauge() else { return }
+        let decayAmount = decayAmountPerTick(for: gaugeDecayLevel)
+        emotionGauge = max(emotionGauge - decayAmount, 0.0)
+    }
+
+    private func shouldDecayGauge() -> Bool {
+        // セッション外は従来どおり減衰させる
+        guard isRunning else { return true }
+        guard let latestMotion = lastMotionTimestamp else { return true }
+        guard let activeMotion = lastActiveMotionTimestamp else { return true }
+        return latestMotion - activeMotion >= GaugeTuning.motionInactivityDelay
+    }
+
+    private func decayAmountPerTick(for level: Int) -> Double {
+        let duration = decayTargetDuration(for: level)
+        return (100.0 / max(duration, 1)) * GaugeTuning.decayInterval
+    }
+
+    private func decayTargetDuration(for level: Int) -> TimeInterval {
+        switch clampedDecayLevel(level) {
+        case 1: return 60   // Max -> 0 まで約1分
+        case 2: return 45
+        case 3: return 30
+        case 4: return 20
+        default: return 10  // Max -> 0 まで約10秒
+        }
+    }
+
+    private func clampedDecayLevel(_ level: Int) -> Int {
+        min(max(level, GaugeTuning.minDecayLevel), GaugeTuning.maxDecayLevel)
+    }
+
+    private static func loadDecayLevel() -> Int {
+        let raw = UserDefaults.standard.integer(forKey: AppPreferenceKey.gaugeDecayLevel)
+        if raw == 0 { return GaugeTuning.defaultDecayLevel }
+        return min(max(raw, GaugeTuning.minDecayLevel), GaugeTuning.maxDecayLevel)
+    }
+
+    func gaugeDecayDurationSeconds(level: Int) -> Int {
+        Int(round(decayTargetDuration(for: level)))
     }
 
     private func transitionState(to newState: EmotionState) {
