@@ -20,17 +20,18 @@ struct MainView: View {
                 let height = proxy.size.height
                 let isLandscape = width > height
                 let isCompactHeight = height < 760
-                let horizontalPadding: CGFloat = width < 360 ? 10 : (width < 420 ? 12 : 16)
+                let safeWidth = max(width - proxy.safeAreaInsets.leading - proxy.safeAreaInsets.trailing, 0)
+                let horizontalPadding: CGFloat = safeWidth < 360 ? 10 : (safeWidth < 420 ? 12 : 16)
                 let portraitCharacterHeight: CGFloat = isCompactHeight
-                    ? (width < 360 ? 200 : 220)
-                    : (width < 360 ? 250 : 280)
-                let availableWidth = max(width - horizontalPadding * 2, 0)
-                let portraitContentWidth: CGFloat = width > 700 ? min(availableWidth, 400) : min(availableWidth, 440)
+                    ? (safeWidth < 360 ? 200 : 220)
+                    : (safeWidth < 360 ? 250 : 280)
+                let availableWidth = max(safeWidth - horizontalPadding * 2, 0)
+                let portraitContentWidth: CGFloat = safeWidth > 700 ? min(availableWidth, 400) : min(availableWidth, 440)
                 let portraitSideButtonWidth: CGFloat = portraitContentWidth < 300 ? 42 : (portraitContentWidth < 340 ? 44 : (portraitContentWidth < 380 ? 48 : 56))
-                let landscapeColumnsWidth: CGFloat = width > 1000 ? min(availableWidth, 940) : min(availableWidth, 860)
-                let landscapeSpacing: CGFloat = width < 780 ? 10 : 14
+                let landscapeColumnsWidth: CGFloat = safeWidth > 1000 ? min(availableWidth, 940) : min(availableWidth, 860)
+                let landscapeSpacing: CGFloat = safeWidth < 780 ? 10 : 14
                 let landscapeTotalColumnWidth = max(landscapeColumnsWidth - landscapeSpacing, 0)
-                let landscapeTargetLeftRatio: CGFloat = width >= 900 ? 0.6 : 0.56
+                let landscapeTargetLeftRatio: CGFloat = safeWidth >= 900 ? 0.6 : 0.56
                 let landscapeMinColumnWidth: CGFloat = 240
                 let landscapeLeftColumnWidth: CGFloat = {
                     if landscapeTotalColumnWidth >= landscapeMinColumnWidth * 2 {
@@ -42,7 +43,7 @@ struct MainView: View {
                 }()
                 let landscapeRightColumnWidth = max(landscapeTotalColumnWidth - landscapeLeftColumnWidth, 0)
                 let landscapeCharacterHeight = max(min(height * 0.66, 430), 220)
-                let landscapeCharacterScaleBoost: CGFloat = width >= 900 ? 1.2 : (width >= 760 ? 1.16 : 1.1)
+                let landscapeCharacterScaleBoost: CGFloat = safeWidth >= 900 ? 1.2 : (safeWidth >= 760 ? 1.16 : 1.1)
                 let landscapeSideButtonWidth: CGFloat = landscapeRightColumnWidth < 320 ? 44 : (landscapeRightColumnWidth < 380 ? 48 : 56)
                 let topInset = max(proxy.safeAreaInsets.top, 8)
                 let bottomInset = max(proxy.safeAreaInsets.bottom, 12)
@@ -83,6 +84,7 @@ struct MainView: View {
                             }
                         }
                         .padding(.top, topInset)
+                        .frame(width: safeWidth, alignment: .top)
                         .frame(minHeight: contentMinHeight, alignment: .top)
                         .padding(.bottom, bottomInset)
                     }
@@ -149,7 +151,6 @@ struct MainView: View {
         VStack(spacing: 0) {
             // ヘッダー
             headerBar(layoutWidth: contentWidth, language: language)
-                .frame(maxWidth: contentWidth)
                 .frame(maxWidth: .infinity)
                 .padding(.top, 8)
 
@@ -162,7 +163,6 @@ struct MainView: View {
                 layoutWidth: contentWidth
             )
             .frame(height: characterHeight)
-            .frame(maxWidth: contentWidth)
             .frame(maxWidth: .infinity)
             .padding(.top, isCompactHeight ? 8 : 24)
 
@@ -174,7 +174,6 @@ struct MainView: View {
                 pulseTrigger: viewModel.gaugePulseTrigger,
                 pulseStrength: viewModel.gaugePulseStrength
             )
-            .frame(maxWidth: contentWidth)
             .frame(maxWidth: .infinity)
             .padding(.top, isCompactHeight ? 8 : 16)
 
@@ -184,10 +183,11 @@ struct MainView: View {
                 sideButtonWidth: sideButtonWidth,
                 layoutWidth: contentWidth
             )
-            .frame(maxWidth: contentWidth)
             .frame(maxWidth: .infinity)
             .padding(.top, isCompactHeight ? 6 : 12)
         }
+        .frame(maxWidth: contentWidth, alignment: .top)
+        .frame(maxWidth: .infinity, alignment: .top)
         .padding(.horizontal, horizontalPadding)
     }
 

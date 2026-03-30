@@ -32,9 +32,13 @@ struct ControlPanelView: View {
 
     @ViewBuilder
     private var controlButtons: some View {
-        ViewThatFits(in: .horizontal) {
-            compactRowButtons
+        if layoutWidth < 370 {
             stackedButtons
+        } else {
+            ViewThatFits(in: .horizontal) {
+                compactRowButtons
+                stackedButtons
+            }
         }
     }
 
