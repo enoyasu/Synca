@@ -53,3 +53,14 @@ extension Double {
     /// 0〜1の範囲にクランプ
     var normalized: Double { max(0, min(1, self)) }
 }
+
+// MARK: - Bundle
+extension Bundle {
+    var shortVersionString: String {
+        object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "-"
+    }
+
+    var buildNumberString: String {
+        object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "-"
+    }
+}

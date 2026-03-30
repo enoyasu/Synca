@@ -52,9 +52,9 @@ struct SettingsView: View {
                         // アプリ情報
                         SettingsSection(title: "アプリ情報", icon: "info.circle.fill") {
                             VStack(spacing: 12) {
-                                infoRow(label: "バージョン", value: "1.0.0")
+                                infoRow(label: "バージョン", value: Bundle.main.shortVersionString)
                                 Divider().background(Color.white.opacity(0.1))
-                                infoRow(label: "ビルド", value: "1")
+                                infoRow(label: "ビルド", value: Bundle.main.buildNumberString)
                                 Divider().background(Color.white.opacity(0.1))
                                 infoRow(label: "プレミアム", value: viewModel.isPremium ? "有効" : "無効")
                             }

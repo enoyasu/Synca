@@ -56,7 +56,6 @@
 		526A3C038EFA531DBE744086 /* Synca.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Synca.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5658C9CE9C7FFA7D5867C047 /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
 		6098C0ABA50ED85D2D597313 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
-		7E2740171A3EAF647F7D7344 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		82D9DA2858C275EE81261041 /* MotionAnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionAnalyzerTests.swift; sourceTree = "<group>"; };
 		85766791E914AF3571943026 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		901284848071C3F18169D7CB /* Character.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Character.swift; sourceTree = "<group>"; };
@@ -109,7 +108,6 @@
 				14F75BB99C2B517F620A7FDA /* App */,
 				857A287D4C9C62BFDCEF0F0B /* Managers */,
 				F5A033D798A8E4564BB83F07 /* Models */,
-				E734C36D42C051EE7DD141F7 /* Resources */,
 				4F26ED5D952189C501D99C80 /* Services */,
 				F2972114AC98695CBEA76EB5 /* ViewModels */,
 				E9DDFADEE6776ECBABBC1495 /* Views */,
@@ -173,14 +171,6 @@
 				CC5E5241164D4E01E122C7D4 /* MainView.swift */,
 			);
 			path = Main;
-			sourceTree = "<group>";
-		};
-		E734C36D42C051EE7DD141F7 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				7E2740171A3EAF647F7D7344 /* Info.plist */,
-			);
-			path = Resources;
 			sourceTree = "<group>";
 		};
 		E9DDFADEE6776ECBABBC1495 /* Views */ = {
@@ -270,11 +260,11 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					367994283DCCC1E465ECF327 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 4SBW8J6Y96;
 						ProvisioningStyle = Automatic;
 					};
 					7DA4A3E8F3F7D83E697DCD1A = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 4SBW8J6Y96;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -395,7 +385,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 4SBW8J6Y96;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -430,7 +420,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Synca/Synca.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = Synca/Resources/Info.plist;
@@ -451,6 +440,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -468,6 +458,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -517,7 +508,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 4SBW8J6Y96;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -545,7 +536,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Synca/Synca.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = Synca/Resources/Info.plist;

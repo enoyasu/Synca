@@ -12,6 +12,7 @@ final class MainViewModel: ObservableObject {
     @Published private(set) var currentCharacter: Character
     @Published private(set) var currentDialogue: String = ""
     @Published private(set) var characterAnimationState: CharacterAnimationState = .idle
+    @Published private(set) var availableCharacters: [Character]
 
     // MARK: - Published: UI State
     @Published var showCharacterSelection: Bool = false
@@ -29,30 +30,52 @@ final class MainViewModel: ObservableObject {
         didSet { audioService.volume = volume }
     }
 
-    // MARK: - Services (internal visibility for PurchaseService access)
-    private let motionService = MotionService()
-    private let motionAnalyzer = MotionAnalyzer()
-    private let audioService = AudioService()
-    private let dialogueManager = DialogueManager()
-    let purchaseService = PurchaseService()
-
-    // MARK: - Gauge constants
-    private let gaugeIncreaseMultiplier: Double = 18.0
-    private let gaugeDecayRate: Double = 0.5          // per tick
-    private let gaugeDecayInterval: TimeInterval = 0.1
-
-    // MARK: - Animation cooldown
-    private var lastAnimationTime: Date = .distantPast
-    private let animationCooldown: TimeInterval = 0.15
+    // MARK: - Dependencies
+    private let motionService: MotionService
+    private let motionAnalyzer: MotionAnalyzer
+    private let audioService: AudioService
+    private let dialogueManager: DialogueManager
+    private let characterManager: CharacterManager
+    let purchaseService: PurchaseService
 
     // MARK: - Cancellables
     private var cancellables = Set<AnyCancellable>()
 
+    // MARK: - Tunables
+    private enum GaugeTuning {
+        static let increaseMultiplier: Double = 18.0
+        static let decayRate: Double = 0.5
+        static let decayInterval: TimeInterval = 0.1
+    }
+
+    private enum AnimationTuning {
+        static let cooldown: TimeInterval = 0.15
+        static let normalResetDelay: TimeInterval = 0.5
+        static let specialResetDelay: TimeInterval = 1.5
+    }
+
+    // MARK: - Internal State
+    private var lastAnimationTime: Date = .distantPast
+
     // MARK: - Init
-    init() {
-        currentCharacter = CharacterManager.shared.defaultCharacter
-        setupBindings()
+    init(
+        motionService: MotionService = MotionService(),
+        motionAnalyzer: MotionAnalyzer = MotionAnalyzer(),
+        audioService: AudioService = AudioService(),
+        dialogueManager: DialogueManager = DialogueManager(),
+        characterManager: CharacterManager = .shared,
+        purchaseService: PurchaseService? = nil
+    ) {
+        self.motionService = motionService
+        self.motionAnalyzer = motionAnalyzer
+        self.audioService = audioService
+        self.dialogueManager = dialogueManager
+        self.characterManager = characterManager
+        self.purchaseService = purchaseService ?? PurchaseService()
+        self.availableCharacters = characterManager.allCharacters
+        self.currentCharacter = characterManager.defaultCharacter
         currentDialogue = dialogueManager.getDialogue(for: .calm, characterId: currentCharacter.id)
+        setupBindings()
     }
 
     // MARK: - Public API
@@ -73,10 +96,29 @@ final class MainViewModel: ObservableObject {
         characterAnimationState = .idle
     }
 
+    func presentCharacterSelection() {
+        showCharacterSelection = true
+    }
+
+    func presentSettings() {
+        showSettings = true
+    }
+
     func selectCharacter(_ character: Character) {
-        guard !character.isLocked else { return }
-        currentCharacter = character
+        guard let selectableCharacter = availableCharacters.first(where: { $0.id == character.id }),
+              !selectableCharacter.isLocked else { return }
+        currentCharacter = selectableCharacter
+        showCharacterSelection = false
         refreshDialogue()
+    }
+
+    func purchaseCharacter(_ character: Character) async {
+        guard let productID = character.productID else { return }
+        await purchaseService.purchase(productID: productID)
+    }
+
+    func purchaseRemoveAds() async {
+        await purchaseService.purchase(productID: PurchaseService.ProductID.removeAds)
     }
 
     func refreshDialogue() {
@@ -99,7 +141,7 @@ final class MainViewModel: ObservableObject {
             .store(in: &cancellables)
 
         // Gauge decay timer
-        Timer.publish(every: gaugeDecayInterval, on: .main, in: .common)
+        Timer.publish(every: GaugeTuning.decayInterval, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in self?.decayGauge() }
             .store(in: &cancellables)
@@ -107,17 +149,7 @@ final class MainViewModel: ObservableObject {
         // Purchase → unlock characters
         purchaseService.$purchasedProductIDs
             .sink { [weak self] ids in
-                guard let self else { return }
-                for id in ids {
-                    let character = CharacterManager.shared.allCharacters
-                        .first(where: { $0.productID == id })
-                    if let c = character {
-                        CharacterManager.shared.unlock(characterId: c.id)
-                    }
-                }
-                if ids.contains(PurchaseService.ProductID.removeAds) {
-                    self.isPremium = true
-                }
+                self?.applyPurchasedProducts(ids)
             }
             .store(in: &cancellables)
     }
@@ -128,12 +160,12 @@ final class MainViewModel: ObservableObject {
         let result = motionAnalyzer.analyze(data)
 
         // ゲージ増加
-        let increase = result.smoothedIntensity * gaugeIncreaseMultiplier
+        let increase = result.smoothedIntensity * GaugeTuning.increaseMultiplier
         emotionGauge = min(emotionGauge + increase, 100.0)
 
         // アニメーション更新（クールダウン付き）
         let now = Date()
-        if result.isPeak, now.timeIntervalSince(lastAnimationTime) > animationCooldown {
+        if result.isPeak, now.timeIntervalSince(lastAnimationTime) > AnimationTuning.cooldown {
             lastAnimationTime = now
             let anim: CharacterAnimationState = result.intensity > 0.5 ? .excited : .react
             setAnimation(anim)
@@ -151,7 +183,7 @@ final class MainViewModel: ObservableObject {
             if characterAnimationState != .idle { characterAnimationState = .idle }
             return
         }
-        emotionGauge = max(emotionGauge - gaugeDecayRate, 0.0)
+        emotionGauge = max(emotionGauge - GaugeTuning.decayRate, 0.0)
     }
 
     private func transitionState(to newState: EmotionState) {
@@ -167,11 +199,30 @@ final class MainViewModel: ObservableObject {
     private func setAnimation(_ state: CharacterAnimationState) {
         characterAnimationState = state
         // 一定時間後に通常状態へ戻す
-        let resetDelay: TimeInterval = state == .special ? 1.5 : 0.5
+        let resetDelay = state == .special ? AnimationTuning.specialResetDelay : AnimationTuning.normalResetDelay
         DispatchQueue.main.asyncAfter(deadline: .now() + resetDelay) { [weak self] in
             guard let self, self.characterAnimationState == state else { return }
             self.characterAnimationState = self.emotionState == .special ? .special : .idle
         }
+    }
+
+    private func applyPurchasedProducts(_ productIDs: Set<String>) {
+        for productID in productIDs {
+            guard let character = characterManager.allCharacters.first(where: { $0.productID == productID }) else {
+                continue
+            }
+            characterManager.unlock(characterId: character.id)
+        }
+
+        availableCharacters = characterManager.allCharacters
+
+        if let current = characterManager.character(id: currentCharacter.id) {
+            currentCharacter = current
+        } else {
+            currentCharacter = characterManager.defaultCharacter
+        }
+
+        isPremium = productIDs.contains(PurchaseService.ProductID.removeAds)
     }
 }
 

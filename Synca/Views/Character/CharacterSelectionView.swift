@@ -29,7 +29,7 @@ struct CharacterSelectionView: View {
 
                         // キャラクターグリッド
                         LazyVGrid(columns: columns, spacing: 14) {
-                            ForEach(CharacterManager.shared.allCharacters) { character in
+                            ForEach(viewModel.availableCharacters) { character in
                                 CharacterCardView(
                                     character: character,
                                     isSelected: viewModel.currentCharacter.id == character.id,
@@ -134,9 +134,7 @@ struct CharacterSelectionView: View {
 
             Button {
                 Task {
-                    await viewModel.purchaseService.purchase(
-                        productID: PurchaseService.ProductID.removeAds
-                    )
+                    await viewModel.purchaseRemoveAds()
                 }
             } label: {
                 Text("購入")
@@ -182,9 +180,8 @@ struct CharacterSelectionView: View {
     // MARK: - Purchase
 
     private func purchaseCharacter(_ character: Character) async {
-        guard let productID = character.productID else { return }
         isPurchasing = true
-        await viewModel.purchaseService.purchase(productID: productID)
+        await viewModel.purchaseCharacter(character)
         isPurchasing = false
     }
 }

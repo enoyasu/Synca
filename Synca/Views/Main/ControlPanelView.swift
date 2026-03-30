@@ -17,7 +17,7 @@ struct ControlPanelView: View {
                     label: "キャラ",
                     color: Color(hex: "A78BFA")
                 ) {
-                    viewModel.showCharacterSelection = true
+                    viewModel.presentCharacterSelection()
                 }
 
                 // START / STOP メインボタン
@@ -30,7 +30,7 @@ struct ControlPanelView: View {
                     label: "設定",
                     color: Color(hex: "60A5FA")
                 ) {
-                    viewModel.showSettings = true
+                    viewModel.presentSettings()
                 }
             }
         }

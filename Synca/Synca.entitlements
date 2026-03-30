@@ -2,12 +2,5 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>com.apple.developer.in-app-payments</key>
-	<array>
-		<string>com.synca.app.removeads</string>
-		<string>com.synca.app.character.hana</string>
-		<string>com.synca.app.character.riku</string>
-		<string>com.synca.app.character.sora</string>
-	</array>
 </dict>
 </plist>
