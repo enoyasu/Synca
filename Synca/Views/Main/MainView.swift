@@ -96,7 +96,7 @@ struct MainView: View {
     }
 
     private func portraitContent(metrics: MainLayoutMetrics, language: AppLanguage) -> some View {
-        let panelSpacing: CGFloat = 10
+        let panelSpacing: CGFloat = 14
 
         return VStack(spacing: 0) {
             headerBar(layoutWidth: metrics.portraitContentWidth, language: language)
@@ -139,7 +139,7 @@ struct MainView: View {
         GeometryReader { geo in
             let availableHeight = max(geo.size.height - 8, 0)
             let headerEstimatedHeight: CGFloat = metrics.landscapeLeftColumnWidth < 360 ? 78 : 52
-            let sectionSpacing: CGFloat = 10
+            let sectionSpacing: CGFloat = 12
             let leftSpacing: CGFloat = sectionSpacing
             let characterHeight = max(
                 min(metrics.landscapeCharacterHeight, availableHeight - headerEstimatedHeight - leftSpacing),
@@ -147,7 +147,7 @@ struct MainView: View {
             )
 
             let rightSpacing: CGFloat = sectionSpacing
-            let gaugeHeight = max(min(availableHeight * 0.34, 152), 100)
+            let gaugeHeight = max(min(availableHeight * 0.31, 146), 96)
             let controlHeight = max(availableHeight - gaugeHeight - rightSpacing, 116)
 
             HStack(alignment: .top, spacing: metrics.landscapeSpacing) {
@@ -194,65 +194,22 @@ struct MainView: View {
 
     // MARK: - Header
 
-    @ViewBuilder
     private func headerBar(layoutWidth: CGFloat, language: AppLanguage) -> some View {
-        let isCompactWidth = layoutWidth < 330
-        let shouldStack = layoutWidth < 360
-        let characterMaxWidth = max(min(layoutWidth * (shouldStack ? 0.58 : 0.34), 190), 72)
+        let badgeWidth = max(min(layoutWidth * (layoutWidth < 360 ? 0.72 : 0.48), 240), 96)
 
-        if shouldStack {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 10) {
-                    appLogo
-                    Spacer(minLength: 0)
-                    if viewModel.isRunning {
-                        liveIndicator(showText: true, language: language)
-                            .fixedSize(horizontal: true, vertical: false)
-                            .layoutPriority(2)
-                    }
-                }
+        return HStack(spacing: 10) {
+            currentCharacterBadge(maxWidth: badgeWidth)
 
-                currentCharacterBadge(maxWidth: characterMaxWidth)
+            Spacer(minLength: 8)
+
+            if viewModel.isRunning {
+                liveIndicator(showText: true, language: language)
+                    .fixedSize(horizontal: true, vertical: false)
+                    .layoutPriority(2)
+                    .transition(.scale.combined(with: .opacity))
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        } else {
-            HStack(spacing: 10) {
-                appLogo
-                    .layoutPriority(1)
-
-                Spacer(minLength: 8)
-
-                currentCharacterBadge(maxWidth: characterMaxWidth)
-
-                if viewModel.isRunning {
-                    liveIndicator(showText: true, language: language)
-                        .fixedSize(horizontal: true, vertical: false)
-                        .layoutPriority(2)
-                        .transition(.scale.combined(with: .opacity))
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
-    }
-
-    private var appLogo: some View {
-        HStack(spacing: 6) {
-            Image("BrandIcon")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 30, height: 30)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .stroke(Color.white.opacity(0.2), lineWidth: 0.8)
-                )
-
-            Text("Synca")
-                .font(.system(size: 20, weight: .black, design: .rounded))
-                .foregroundColor(.white)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func currentCharacterBadge(maxWidth: CGFloat) -> some View {

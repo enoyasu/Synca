@@ -30,7 +30,7 @@ struct ControlPanelView: View {
     }
 
     private var sectionSpacing: CGFloat {
-        10
+        compactMode ? 10 : 12
     }
 
     var body: some View {
@@ -46,13 +46,8 @@ struct ControlPanelView: View {
     private var controlButtons: some View {
         if compactMode {
             compactRowButtons
-        } else if isCompactWidth {
-            stackedButtons
         } else {
-            ViewThatFits(in: .horizontal) {
-                compactRowButtons
-                stackedButtons
-            }
+            portraitButtons
         }
     }
 
@@ -61,7 +56,7 @@ struct ControlPanelView: View {
             characterButton(width: sideButtonWidth)
                 .frame(minWidth: sideButtonWidth, maxWidth: sideButtonWidth)
 
-            startStopButton
+            startStopButton(height: 50)
                 .frame(maxWidth: .infinity)
                 .layoutPriority(1)
 
@@ -71,17 +66,18 @@ struct ControlPanelView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private var stackedButtons: some View {
-        VStack(spacing: 8) {
-            startStopButton
-
-            HStack(spacing: 8) {
+    private var portraitButtons: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 12) {
                 characterButton(width: nil)
                     .frame(maxWidth: .infinity)
                 settingsButton(width: nil)
                     .frame(maxWidth: .infinity)
             }
+
+            startStopButton(height: 60)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var dialogueBubble: some View {
@@ -121,14 +117,14 @@ struct ControlPanelView: View {
         }
         .padding(.horizontal, isCompactWidth ? 12 : 14)
         .padding(.vertical, compactMode ? 8 : 10)
-        .frame(maxWidth: .infinity, minHeight: compactMode ? 52 : (isCompactWidth ? 76 : 64), alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: compactMode ? 52 : (isCompactWidth ? 78 : 68), alignment: .leading)
         .glassCard(cornerRadius: 16)
         .onTapGesture {
             viewModel.refreshDialogue()
         }
     }
 
-    private var startStopButton: some View {
+    private func startStopButton(height: CGFloat) -> some View {
         Button {
             viewModel.toggleSession()
         } label: {
@@ -150,7 +146,7 @@ struct ControlPanelView: View {
                     .minimumScaleFactor(0.8)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: compactMode ? 50 : 54)
+            .frame(height: height)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(
