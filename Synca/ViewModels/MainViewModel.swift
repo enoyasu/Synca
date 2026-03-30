@@ -13,6 +13,8 @@ final class MainViewModel: ObservableObject {
     @Published private(set) var currentDialogue: String = ""
     @Published private(set) var characterAnimationState: CharacterAnimationState = .idle
     @Published private(set) var availableCharacters: [Character]
+    @Published private(set) var gaugePulseTrigger: Int = 0
+    @Published private(set) var gaugePulseStrength: Double = 0.0
 
     // MARK: - Published: UI State
     @Published var showCharacterSelection: Bool = false
@@ -43,9 +45,14 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Tunables
     private enum GaugeTuning {
-        static let increaseMultiplier: Double = 18.0
-        static let decayRate: Double = 0.5
+        // 感度最小(0.2)で通常利用時にMaxまで約30分を目安に調整
+        static let increasePerSecond: Double = 1.8
+        static let decayRate: Double = 0.003
         static let decayInterval: TimeInterval = 0.1
+        static let minMotionDelta: Double = 1.0 / 120.0
+        static let maxMotionDelta: Double = 0.2
+        static let pulseThreshold: Double = 0.012
+        static let pulseMinInterval: TimeInterval = 0.08
     }
 
     private enum AnimationTuning {
@@ -56,6 +63,8 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal State
     private var lastAnimationTime: Date = .distantPast
+    private var lastMotionTimestamp: TimeInterval?
+    private var lastGaugePulseTimestamp: TimeInterval = 0
     private var currentLanguage: AppLanguage {
         let raw = UserDefaults.standard.string(forKey: AppPreferenceKey.appLanguage) ?? AppLanguage.japanese.rawValue
         return AppLanguage(rawValue: raw) ?? .japanese
@@ -94,6 +103,8 @@ final class MainViewModel: ObservableObject {
 
     func startSession() {
         motionAnalyzer.reset()
+        lastMotionTimestamp = nil
+        lastGaugePulseTimestamp = 0
         motionService.start()
         isRunning = true
     }
@@ -101,6 +112,7 @@ final class MainViewModel: ObservableObject {
     func stopSession() {
         motionService.stop()
         isRunning = false
+        lastMotionTimestamp = nil
         characterAnimationState = .idle
     }
 
@@ -167,10 +179,20 @@ final class MainViewModel: ObservableObject {
 
     private func processMotion(_ data: MotionData) {
         let result = motionAnalyzer.analyze(data)
+        let delta = clampedMotionDelta(for: data.timestamp)
 
         // ゲージ増加
-        let increase = result.smoothedIntensity * GaugeTuning.increaseMultiplier
+        let increase = result.smoothedIntensity * GaugeTuning.increasePerSecond * delta
         emotionGauge = min(emotionGauge + increase, 100.0)
+
+        // 振動イベントをUIへ通知（ゲージの増加を視覚化）
+        let pulseInput = max(result.intensity, result.smoothedIntensity)
+        if pulseInput > GaugeTuning.pulseThreshold,
+           data.timestamp - lastGaugePulseTimestamp >= GaugeTuning.pulseMinInterval {
+            lastGaugePulseTimestamp = data.timestamp
+            gaugePulseStrength = min(max(pulseInput * 1.8, 0.18), 1.0)
+            gaugePulseTrigger &+= 1
+        }
 
         // アニメーション更新（クールダウン付き）
         let now = Date()
@@ -185,6 +207,13 @@ final class MainViewModel: ObservableObject {
         if newState != emotionState {
             transitionState(to: newState)
         }
+    }
+
+    private func clampedMotionDelta(for timestamp: TimeInterval) -> Double {
+        defer { lastMotionTimestamp = timestamp }
+        guard let previous = lastMotionTimestamp else { return 1.0 / 30.0 }
+        let rawDelta = timestamp - previous
+        return min(max(rawDelta, GaugeTuning.minMotionDelta), GaugeTuning.maxMotionDelta)
     }
 
     private func decayGauge() {

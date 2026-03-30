@@ -57,7 +57,9 @@ struct MainView: View {
                         EmotionGaugeView(
                             gauge: viewModel.emotionGauge,
                             state: viewModel.emotionState,
-                            layoutWidth: contentWidth
+                            layoutWidth: contentWidth,
+                            pulseTrigger: viewModel.gaugePulseTrigger,
+                            pulseStrength: viewModel.gaugePulseStrength
                         )
                         .frame(maxWidth: contentWidth)
                         .frame(maxWidth: .infinity)

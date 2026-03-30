@@ -5,18 +5,30 @@ struct EmotionGaugeView: View {
     let gauge: Double           // 0.0〜100.0
     let state: EmotionState
     let layoutWidth: CGFloat
+    let pulseTrigger: Int
+    let pulseStrength: Double
 
     @AppStorage(AppPreferenceKey.appLanguage) private var appLanguageRaw = AppLanguage.japanese.rawValue
     @State private var animatedGauge: Double = 0
     @State private var shimmerOffset: CGFloat = -200
+    @State private var pulseScale: CGFloat = 1.0
+    @State private var pulseOpacity: Double = 0.0
 
     private let barHeight: CGFloat = 14
     private let cornerRadius: CGFloat = 8
 
-    init(gauge: Double, state: EmotionState, layoutWidth: CGFloat = 360) {
+    init(
+        gauge: Double,
+        state: EmotionState,
+        layoutWidth: CGFloat = 360,
+        pulseTrigger: Int = 0,
+        pulseStrength: Double = 0.0
+    ) {
         self.gauge = gauge
         self.state = state
         self.layoutWidth = layoutWidth
+        self.pulseTrigger = pulseTrigger
+        self.pulseStrength = pulseStrength
     }
 
     private var language: AppLanguage {
@@ -67,44 +79,56 @@ struct EmotionGaugeView: View {
                 // 区切りマーカー（30 / 70）
                 GeometryReader { geo in
                     let w = geo.size.width
+                    let fillRatio = CGFloat(min(max(animatedGauge / 100, 0), 1))
+                    let rawFillWidth = w * fillRatio
+                    let fillWidth = fillRatio > 0 ? max(rawFillWidth, 2) : 0
                     ZStack(alignment: .leading) {
-                        // 塗り
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .fill(
-                                LinearGradient(
-                                    gradient: Gradient(stops: [
-                                        .init(color: Color(hex: "6B9FD4"), location: 0.0),
-                                        .init(color: Color(hex: "A855F7"), location: 0.3),
-                                        .init(color: Color(hex: "EC4899"), location: 0.7),
-                                        .init(color: Color(hex: "F59E0B"), location: 1.0)
-                                    ]),
-                                    startPoint: .leading,
-                                    endPoint: .trailing
+                        ZStack(alignment: .leading) {
+                            // 塗り
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(stops: [
+                                            .init(color: Color(hex: "6B9FD4"), location: 0.0),
+                                            .init(color: Color(hex: "A855F7"), location: 0.3),
+                                            .init(color: Color(hex: "EC4899"), location: 0.7),
+                                            .init(color: Color(hex: "F59E0B"), location: 1.0)
+                                        ]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
                                 )
-                            )
-                            .frame(width: w * CGFloat(animatedGauge / 100), height: barHeight)
-                            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: animatedGauge)
+                                .frame(width: fillWidth, height: barHeight)
+                                .scaleEffect(x: pulseScale, y: 1.0, anchor: .leading)
+                                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: animatedGauge)
 
-                        // シマーエフェクト
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .fill(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [
-                                        Color.clear,
-                                        Color.white.opacity(0.3),
-                                        Color.clear
-                                    ]),
-                                    startPoint: .leading,
-                                    endPoint: .trailing
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .fill(Color.white.opacity(pulseOpacity))
+                                .frame(width: fillWidth, height: barHeight)
+
+                            // シマーエフェクト
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            Color.clear,
+                                            Color.white.opacity(0.3),
+                                            Color.clear
+                                        ]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
                                 )
-                            )
-                            .frame(width: 80, height: barHeight)
-                            .offset(x: shimmerOffset)
-                            .clipped()
-                            .mask(
-                                RoundedRectangle(cornerRadius: cornerRadius)
-                                    .frame(width: w * CGFloat(animatedGauge / 100))
-                            )
+                                .frame(width: 80, height: barHeight)
+                                .offset(x: shimmerOffset)
+                                .clipped()
+                                .mask(
+                                    RoundedRectangle(cornerRadius: cornerRadius)
+                                        .frame(width: fillWidth)
+                                )
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
                     }
 
                     // 区切りライン
@@ -157,6 +181,9 @@ struct EmotionGaugeView: View {
         .onChange(of: gauge) { _, newValue in
             animatedGauge = newValue
         }
+        .onChange(of: pulseTrigger) { _, _ in
+            animateGaugePulse()
+        }
     }
 
     private func stateIndicator(
@@ -199,6 +226,20 @@ struct EmotionGaugeView: View {
     private func startShimmer() {
         withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: false)) {
             shimmerOffset = 400
+        }
+    }
+
+    private func animateGaugePulse() {
+        let normalized = min(max(pulseStrength, 0.0), 1.0)
+        let scale = 1.0 + (0.02 + normalized * 0.06)
+
+        withAnimation(.easeOut(duration: 0.08)) {
+            pulseScale = scale
+            pulseOpacity = 0.14 + normalized * 0.18
+        }
+        withAnimation(.easeOut(duration: 0.28).delay(0.08)) {
+            pulseScale = 1.0
+            pulseOpacity = 0.0
         }
     }
 }
