@@ -21,11 +21,14 @@ struct MainView: View {
                 let isLandscape = width > height
                 let isCompactHeight = height < 760
                 let safeWidth = max(width - proxy.safeAreaInsets.leading - proxy.safeAreaInsets.trailing, 0)
-                let horizontalPadding: CGFloat = safeWidth < 360 ? 10 : (safeWidth < 420 ? 12 : 16)
+                let baseHorizontalPadding: CGFloat = safeWidth < 360 ? 10 : (safeWidth < 420 ? 12 : 16)
+                let globalLeftShift: CGFloat = 20
+                let leadingPadding = max(baseHorizontalPadding - globalLeftShift, 0)
+                let trailingPadding = baseHorizontalPadding + globalLeftShift
                 let portraitCharacterHeight: CGFloat = isCompactHeight
                     ? (safeWidth < 360 ? 200 : 220)
                     : (safeWidth < 360 ? 250 : 280)
-                let availableWidth = max(safeWidth - horizontalPadding * 2, 0)
+                let availableWidth = max(safeWidth - leadingPadding - trailingPadding, 0)
                 let portraitContentWidth: CGFloat = safeWidth > 700 ? min(availableWidth, 400) : min(availableWidth, 440)
                 let portraitSideButtonWidth: CGFloat = portraitContentWidth < 300 ? 42 : (portraitContentWidth < 340 ? 44 : (portraitContentWidth < 380 ? 48 : 56))
                 let landscapeColumnsWidth: CGFloat = safeWidth > 1000 ? min(availableWidth, 940) : min(availableWidth, 860)
@@ -62,7 +65,8 @@ struct MainView: View {
 
                             if isLandscape {
                                 landscapeContent(
-                                    horizontalPadding: horizontalPadding,
+                                    leadingPadding: leadingPadding,
+                                    trailingPadding: trailingPadding,
                                     leftColumnWidth: landscapeLeftColumnWidth,
                                     rightColumnWidth: landscapeRightColumnWidth,
                                     columnsWidth: landscapeColumnsWidth,
@@ -74,7 +78,8 @@ struct MainView: View {
                                 )
                             } else {
                                 portraitContent(
-                                    horizontalPadding: horizontalPadding,
+                                    leadingPadding: leadingPadding,
+                                    trailingPadding: trailingPadding,
                                     contentWidth: portraitContentWidth,
                                     characterHeight: portraitCharacterHeight,
                                     sideButtonWidth: portraitSideButtonWidth,
@@ -141,7 +146,8 @@ struct MainView: View {
     }
 
     private func portraitContent(
-        horizontalPadding: CGFloat,
+        leadingPadding: CGFloat,
+        trailingPadding: CGFloat,
         contentWidth: CGFloat,
         characterHeight: CGFloat,
         sideButtonWidth: CGFloat,
@@ -188,11 +194,13 @@ struct MainView: View {
         }
         .frame(maxWidth: contentWidth, alignment: .top)
         .frame(maxWidth: .infinity, alignment: .top)
-        .padding(.horizontal, horizontalPadding)
+        .padding(.leading, leadingPadding)
+        .padding(.trailing, trailingPadding)
     }
 
     private func landscapeContent(
-        horizontalPadding: CGFloat,
+        leadingPadding: CGFloat,
+        trailingPadding: CGFloat,
         leftColumnWidth: CGFloat,
         rightColumnWidth: CGFloat,
         columnsWidth: CGFloat,
@@ -235,7 +243,8 @@ struct MainView: View {
         }
         .frame(maxWidth: columnsWidth)
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, horizontalPadding)
+        .padding(.leading, leadingPadding)
+        .padding(.trailing, trailingPadding)
         .padding(.top, 8)
     }
 
