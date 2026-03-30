@@ -7,7 +7,12 @@ struct CharacterCardView: View {
     let onTap: () -> Void
     let onPurchase: () -> Void
 
+    @AppStorage(AppPreferenceKey.appLanguage) private var appLanguageRaw = AppLanguage.japanese.rawValue
     @State private var isHovered = false
+
+    private var language: AppLanguage {
+        AppLanguage(rawValue: appLanguageRaw) ?? .japanese
+    }
 
     var body: some View {
         Button(action: {
@@ -53,7 +58,7 @@ struct CharacterCardView: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
 
-                        Text(character.description)
+                        Text(character.localizedDescription(for: language))
                             .font(.system(size: 12, weight: .regular))
                             .foregroundColor(.white.opacity(0.65))
                             .multilineTextAlignment(.center)
@@ -194,7 +199,7 @@ struct CharacterCardView: View {
                     Circle()
                         .fill(Color(hex: "10B981"))
                         .frame(width: 7, height: 7)
-                    Text("解放済み")
+                    Text(L10n.text(.unlocked, language: language))
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(Color(hex: "10B981"))
                 }

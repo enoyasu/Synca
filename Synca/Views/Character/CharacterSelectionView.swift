@@ -4,10 +4,15 @@ import SwiftUI
 struct CharacterSelectionView: View {
     @EnvironmentObject var viewModel: MainViewModel
     @Environment(\.dismiss) private var dismiss
+    @AppStorage(AppPreferenceKey.appLanguage) private var appLanguageRaw = AppLanguage.japanese.rawValue
 
     @State private var showingPurchaseAlert = false
     @State private var selectedForPurchase: Character?
     @State private var isPurchasing = false
+
+    private var language: AppLanguage {
+        AppLanguage(rawValue: appLanguageRaw) ?? .japanese
+    }
 
     var body: some View {
         NavigationStack {
@@ -15,11 +20,12 @@ struct CharacterSelectionView: View {
                 let width = proxy.size.width
                 let isNarrowWidth = width < 360
                 let isCompactWidth = width < 410
-                let horizontalPadding: CGFloat = isNarrowWidth ? 14 : (isCompactWidth ? 16 : 20)
+                let horizontalPadding: CGFloat = isNarrowWidth ? 10 : (isCompactWidth ? 12 : 16)
+                let availableWidth = max(width - horizontalPadding * 2, 0)
+                let contentWidth = width > 700 ? min(availableWidth, 420) : min(availableWidth, 460)
                 let gridSpacing: CGFloat = isCompactWidth ? 10 : 14
                 let gridColumnCount = computedGridColumnCount(
-                    totalWidth: width,
-                    horizontalPadding: horizontalPadding,
+                    availableWidth: contentWidth,
                     spacing: gridSpacing
                 )
 
@@ -31,7 +37,8 @@ struct CharacterSelectionView: View {
                         VStack(spacing: 20) {
                             // ヘッダー説明
                             headerInfo
-                                .padding(.horizontal, horizontalPadding)
+                                .frame(maxWidth: contentWidth)
+                                .frame(maxWidth: .infinity)
                                 .padding(.top, 4)
 
                             // キャラクターグリッド
@@ -52,39 +59,42 @@ struct CharacterSelectionView: View {
                                     .frame(height: isNarrowWidth ? 210 : 220)
                                 }
                             }
-                            .padding(.horizontal, horizontalPadding)
+                            .frame(maxWidth: contentWidth)
+                            .frame(maxWidth: .infinity)
 
                             // 広告削除オファー
                             if !viewModel.isPremium {
                                 removeAdsCard(isCompactWidth: isCompactWidth)
-                                    .padding(.horizontal, horizontalPadding)
+                                    .frame(maxWidth: contentWidth)
+                                    .frame(maxWidth: .infinity)
                             }
                         }
+                        .padding(.horizontal, horizontalPadding)
                         .padding(.bottom, 30)
                     }
                 }
             }
-            .navigationTitle("キャラクター選択")
+            .navigationTitle(L10n.text(.characterSelectionTitle, language: language))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("閉じる") { dismiss() }
+                    Button(L10n.text(.close, language: language)) { dismiss() }
                         .foregroundColor(.white)
                 }
             }
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
-        .alert("キャラクターを解放", isPresented: $showingPurchaseAlert, presenting: selectedForPurchase) { char in
-            Button("購入 \(char.unlockPrice ?? "¥120")") {
+        .alert(L10n.text(.unlockCharacterTitle, language: language), isPresented: $showingPurchaseAlert, presenting: selectedForPurchase) { char in
+            Button(L10n.purchaseWithPrice(char.unlockPrice ?? "¥120", language: language)) {
                 Task {
                     await purchaseCharacter(char)
                 }
             }
-            Button("キャンセル", role: .cancel) {}
+            Button(L10n.text(.cancel, language: language), role: .cancel) {}
         } message: { char in
-            Text("\(char.name) を解放しますか？")
+            Text(L10n.unlockQuestion(characterName: char.name, language: language))
         }
         .overlay {
             if isPurchasing {
@@ -100,7 +110,7 @@ struct CharacterSelectionView: View {
             Image(systemName: "sparkles")
                 .font(.system(size: 14))
                 .foregroundColor(Color(hex: "A78BFA"))
-            Text("キャラクターを選んで、一緒に楽しもう！")
+            Text(L10n.text(.characterSelectionHeader, language: language))
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(.white.opacity(0.7))
                 .lineLimit(2)
@@ -129,7 +139,7 @@ struct CharacterSelectionView: View {
                         await viewModel.purchaseRemoveAds()
                     }
                 } label: {
-                    Text("購入")
+                    Text(L10n.text(.purchase, language: language))
                         .font(.system(size: 13, weight: .bold))
                         .foregroundColor(.white)
                         .lineLimit(1)
@@ -163,7 +173,7 @@ struct CharacterSelectionView: View {
                         await viewModel.purchaseRemoveAds()
                     }
                 } label: {
-                    Text("購入")
+                    Text(L10n.text(.purchase, language: language))
                         .font(.system(size: 13, weight: .bold))
                         .foregroundColor(.white)
                         .lineLimit(1)
@@ -209,12 +219,12 @@ struct CharacterSelectionView: View {
 
     private var removeAdsText: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("広告を削除")
+            Text(L10n.text(.removeAds, language: language))
                 .font(.system(size: 15, weight: .bold))
                 .foregroundColor(.white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
-            Text("¥250でずっと広告なし体験")
+            Text(L10n.text(.removeAdsSubtitle, language: language))
                 .font(.system(size: 12))
                 .foregroundColor(.white.opacity(0.65))
                 .lineLimit(2)
@@ -233,7 +243,7 @@ struct CharacterSelectionView: View {
                 ProgressView()
                     .tint(.white)
                     .scaleEffect(1.5)
-                Text("処理中...")
+                Text(L10n.text(.processing, language: language))
                     .font(.system(size: 15, weight: .medium))
                     .foregroundColor(.white)
             }
@@ -254,8 +264,7 @@ struct CharacterSelectionView: View {
         Array(repeating: GridItem(.flexible(), spacing: spacing), count: max(count, 1))
     }
 
-    private func computedGridColumnCount(totalWidth: CGFloat, horizontalPadding: CGFloat, spacing: CGFloat) -> Int {
-        let availableWidth = max(totalWidth - horizontalPadding * 2, 0)
+    private func computedGridColumnCount(availableWidth: CGFloat, spacing: CGFloat) -> Int {
         let minimumCardWidth: CGFloat = 170
         let estimatedCount = Int((availableWidth + spacing) / (minimumCardWidth + spacing))
         return max(min(estimatedCount, 2), 1)

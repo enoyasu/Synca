@@ -3,10 +3,15 @@ import SwiftUI
 /// アプリのメイン画面
 struct MainView: View {
     @EnvironmentObject var viewModel: MainViewModel
+    @AppStorage(AppPreferenceKey.appLanguage) private var appLanguageRaw = AppLanguage.japanese.rawValue
 
     // MARK: - Background animation
     @State private var bgRotation: Double = 0
     @State private var bgScale: CGFloat = 1.0
+
+    private var language: AppLanguage {
+        AppLanguage(rawValue: appLanguageRaw) ?? .japanese
+    }
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -16,10 +21,11 @@ struct MainView: View {
             GeometryReader { proxy in
                 let isCompactHeight = proxy.size.height < 760
                 let width = proxy.size.width
-                let horizontalPadding: CGFloat = width < 360 ? 14 : (width < 420 ? 16 : 20)
+                let horizontalPadding: CGFloat = width < 360 ? 10 : (width < 420 ? 12 : 16)
                 let characterHeight: CGFloat = isCompactHeight ? 220 : 280
-                let sideButtonWidth: CGFloat = width < 360 ? 56 : (width > 800 ? 72 : 64)
-                let contentWidth = max(width - horizontalPadding * 2, 0)
+                let availableWidth = max(width - horizontalPadding * 2, 0)
+                let contentWidth: CGFloat = width > 700 ? min(availableWidth, 400) : min(availableWidth, 440)
+                let sideButtonWidth: CGFloat = contentWidth < 320 ? 44 : (contentWidth < 360 ? 48 : (contentWidth < 420 ? 52 : 56))
                 let topInset = max(proxy.safeAreaInsets.top, 8)
                 let bottomInset = max(proxy.safeAreaInsets.bottom, 12)
                 let contentMinHeight = max(proxy.size.height - topInset - bottomInset, 0)
@@ -30,8 +36,9 @@ struct MainView: View {
                         AdBannerView(isHidden: viewModel.isPremium)
 
                         // ヘッダー
-                        headerBar(layoutWidth: contentWidth)
-                            .padding(.horizontal, horizontalPadding)
+                        headerBar(layoutWidth: contentWidth, language: language)
+                            .frame(maxWidth: contentWidth)
+                            .frame(maxWidth: .infinity)
                             .padding(.top, 8)
 
                         // キャラクター
@@ -42,24 +49,31 @@ struct MainView: View {
                             gauge: viewModel.emotionGauge
                         )
                         .frame(height: characterHeight)
+                        .frame(maxWidth: contentWidth)
+                        .frame(maxWidth: .infinity)
                         .padding(.top, isCompactHeight ? 8 : 24)
 
                         // 感情ゲージ
                         EmotionGaugeView(
                             gauge: viewModel.emotionGauge,
-                            state: viewModel.emotionState
+                            state: viewModel.emotionState,
+                            layoutWidth: contentWidth
                         )
-                        .padding(.horizontal, horizontalPadding)
+                        .frame(maxWidth: contentWidth)
+                        .frame(maxWidth: .infinity)
                         .padding(.top, isCompactHeight ? 8 : 16)
 
                         // コントロールパネル
                         ControlPanelView(
-                            horizontalPadding: horizontalPadding,
+                            horizontalPadding: 0,
                             sideButtonWidth: sideButtonWidth,
                             layoutWidth: contentWidth
                         )
+                            .frame(maxWidth: contentWidth)
+                            .frame(maxWidth: .infinity)
                             .padding(.top, isCompactHeight ? 6 : 12)
                     }
+                    .padding(.horizontal, horizontalPadding)
                     .padding(.top, topInset)
                     .frame(minHeight: contentMinHeight, alignment: .top)
                     .padding(.bottom, bottomInset)
@@ -113,10 +127,10 @@ struct MainView: View {
 
     // MARK: - Header
 
-    private func headerBar(layoutWidth: CGFloat) -> some View {
-        let isCompactWidth = layoutWidth < 360
-        let isMediumWidth = layoutWidth < 460
-        let characterMaxWidth = max(min(layoutWidth * (isMediumWidth ? 0.34 : 0.42), 210), 80)
+    private func headerBar(layoutWidth: CGFloat, language: AppLanguage) -> some View {
+        let isCompactWidth = layoutWidth < 330
+        let isMediumWidth = layoutWidth < 390
+        let characterMaxWidth = max(min(layoutWidth * (isMediumWidth ? 0.30 : 0.36), 170), 64)
 
         return VStack(spacing: 8) {
             HStack(spacing: isCompactWidth ? 8 : 12) {
@@ -169,7 +183,7 @@ struct MainView: View {
 
                 // 横幅に余裕がある場合のみ同列でLIVE表示
                 if viewModel.isRunning && !isMediumWidth {
-                    liveIndicator(showText: true)
+                    liveIndicator(showText: true, language: language)
                         .transition(.scale.combined(with: .opacity))
                 }
             }
@@ -178,7 +192,7 @@ struct MainView: View {
             if viewModel.isRunning && isMediumWidth {
                 HStack {
                     Spacer()
-                    liveIndicator(showText: !isCompactWidth)
+                    liveIndicator(showText: !isCompactWidth, language: language)
                         .transition(.opacity.combined(with: .move(edge: .trailing)))
                 }
             }
@@ -186,14 +200,14 @@ struct MainView: View {
         .animation(.spring(response: 0.3), value: viewModel.isRunning)
     }
 
-    private func liveIndicator(showText: Bool) -> some View {
+    private func liveIndicator(showText: Bool, language: AppLanguage) -> some View {
         HStack(spacing: showText ? 4 : 0) {
             Circle()
                 .fill(Color(hex: "10B981"))
                 .frame(width: 6, height: 6)
                 .shadow(color: Color(hex: "10B981"), radius: 4)
             if showText {
-                Text("LIVE")
+                Text(L10n.text(.live, language: language))
                     .font(.system(size: 11, weight: .bold))
                     .foregroundColor(Color(hex: "10B981"))
                     .lineLimit(1)

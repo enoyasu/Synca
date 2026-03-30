@@ -56,6 +56,10 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal State
     private var lastAnimationTime: Date = .distantPast
+    private var currentLanguage: AppLanguage {
+        let raw = UserDefaults.standard.string(forKey: AppPreferenceKey.appLanguage) ?? AppLanguage.japanese.rawValue
+        return AppLanguage(rawValue: raw) ?? .japanese
+    }
 
     // MARK: - Init
     init(
@@ -74,7 +78,11 @@ final class MainViewModel: ObservableObject {
         self.purchaseService = purchaseService ?? PurchaseService()
         self.availableCharacters = characterManager.allCharacters
         self.currentCharacter = characterManager.defaultCharacter
-        currentDialogue = dialogueManager.getDialogue(for: .calm, characterId: currentCharacter.id)
+        currentDialogue = dialogueManager.getDialogue(
+            for: .calm,
+            characterId: currentCharacter.id,
+            language: currentLanguage
+        )
         setupBindings()
     }
 
@@ -124,7 +132,8 @@ final class MainViewModel: ObservableObject {
     func refreshDialogue() {
         currentDialogue = dialogueManager.getDialogue(
             for: emotionState,
-            characterId: currentCharacter.id
+            characterId: currentCharacter.id,
+            language: currentLanguage
         )
     }
 

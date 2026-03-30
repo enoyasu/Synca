@@ -3,6 +3,7 @@ import SwiftUI
 /// 画面下部のコントロールパネル（START/STOP・キャラ選択・設定）
 struct ControlPanelView: View {
     @EnvironmentObject var viewModel: MainViewModel
+    @AppStorage(AppPreferenceKey.appLanguage) private var appLanguageRaw = AppLanguage.japanese.rawValue
     let horizontalPadding: CGFloat
     let sideButtonWidth: CGFloat
     let layoutWidth: CGFloat
@@ -11,6 +12,10 @@ struct ControlPanelView: View {
         self.horizontalPadding = horizontalPadding
         self.sideButtonWidth = sideButtonWidth
         self.layoutWidth = layoutWidth
+    }
+
+    private var language: AppLanguage {
+        AppLanguage(rawValue: appLanguageRaw) ?? .japanese
     }
 
     var body: some View {
@@ -23,7 +28,7 @@ struct ControlPanelView: View {
                 // キャラクター選択
                 IconButton(
                     icon: "person.2.fill",
-                    label: "キャラ",
+                    label: L10n.text(.tabCharacter, language: language),
                     color: Color(hex: "A78BFA"),
                     width: sideButtonWidth
                 ) {
@@ -37,7 +42,7 @@ struct ControlPanelView: View {
                 // 設定
                 IconButton(
                     icon: "slider.horizontal.3",
-                    label: "設定",
+                    label: L10n.text(.tabSettings, language: language),
                     color: Color(hex: "60A5FA"),
                     width: sideButtonWidth
                 ) {
@@ -52,9 +57,9 @@ struct ControlPanelView: View {
     // MARK: - Dialogue Bubble
 
     private var dialogueBubble: some View {
-        let isCompactWidth = layoutWidth < 360
-        let isMediumWidth = layoutWidth < 460
-        let dialogueLineLimit = isCompactWidth ? 4 : (isMediumWidth ? 3 : 2)
+        let isCompactWidth = layoutWidth < 330
+        let isMediumWidth = layoutWidth < 400
+        let dialogueLineLimit = isCompactWidth ? 5 : (isMediumWidth ? 4 : 3)
         let iconSize: CGFloat = isCompactWidth ? 30 : 32
 
         return HStack(spacing: 12) {
@@ -92,6 +97,7 @@ struct ControlPanelView: View {
         }
         .padding(.horizontal, isCompactWidth ? 12 : 14)
         .padding(.vertical, 10)
+        .frame(minHeight: isCompactWidth ? 76 : 64, alignment: .leading)
         .glassCard(cornerRadius: 16)
         .onTapGesture {
             viewModel.refreshDialogue()
@@ -115,11 +121,11 @@ struct ControlPanelView: View {
                         .offset(x: viewModel.isRunning ? 0 : 1)
                 }
 
-                Text(viewModel.isRunning ? "STOP" : "START")
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                Text(startStopLabel)
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.85)
+                    .minimumScaleFactor(0.8)
             }
             .frame(maxWidth: .infinity)
             .frame(height: 52)
@@ -142,6 +148,12 @@ struct ControlPanelView: View {
         }
         .buttonStyle(ScaleButtonStyle())
         .animation(.spring(response: 0.3), value: viewModel.isRunning)
+    }
+
+    private var startStopLabel: String {
+        viewModel.isRunning
+            ? L10n.text(.stop, language: language)
+            : L10n.text(.start, language: language)
     }
 
     private var startStopColors: [Color] {

@@ -4,12 +4,29 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var viewModel: MainViewModel
     @Environment(\.dismiss) private var dismiss
+    @AppStorage(AppPreferenceKey.appLanguage) private var appLanguageRaw = AppLanguage.japanese.rawValue
+
+    private var language: AppLanguage {
+        AppLanguage(rawValue: appLanguageRaw) ?? .japanese
+    }
+
+    private var languageSelection: Binding<AppLanguage> {
+        Binding(
+            get: { language },
+            set: { newValue in
+                appLanguageRaw = newValue.rawValue
+                viewModel.refreshDialogue()
+            }
+        )
+    }
 
     var body: some View {
         NavigationStack {
             GeometryReader { proxy in
                 let width = proxy.size.width
-                let horizontalPadding: CGFloat = width < 360 ? 14 : (width < 410 ? 16 : 20)
+                let horizontalPadding: CGFloat = width < 360 ? 10 : (width < 410 ? 12 : 16)
+                let availableWidth = max(width - horizontalPadding * 2, 0)
+                let contentWidth: CGFloat = width > 700 ? min(availableWidth, 430) : min(availableWidth, 470)
 
                 ZStack {
                     Color(hex: "0A0A1A").ignoresSafeArea()
@@ -17,10 +34,10 @@ struct SettingsView: View {
                     ScrollView {
                         VStack(spacing: 16) {
                             // センサー設定
-                            SettingsSection(title: "センサー設定", icon: "gyroscope", horizontalPadding: horizontalPadding) {
+                            SettingsSection(title: L10n.text(.sensorSettings, language: language), icon: "gyroscope", horizontalPadding: horizontalPadding) {
                                 VStack(spacing: 18) {
                                     SettingsSlider(
-                                        title: "感度",
+                                        title: L10n.text(.sensitivity, language: language),
                                         icon: "dial.high.fill",
                                         value: $viewModel.sensitivity,
                                         range: 0.2...3.0,
@@ -34,9 +51,9 @@ struct SettingsView: View {
                             }
 
                             // オーディオ設定
-                            SettingsSection(title: "オーディオ", icon: "speaker.wave.2.fill", horizontalPadding: horizontalPadding) {
+                            SettingsSection(title: L10n.text(.audioSettings, language: language), icon: "speaker.wave.2.fill", horizontalPadding: horizontalPadding) {
                                 SettingsSlider(
-                                    title: "音量",
+                                    title: L10n.text(.volume, language: language),
                                     icon: "speaker.fill",
                                     value: $viewModel.volume,
                                     range: 0.0...1.0,
@@ -45,22 +62,32 @@ struct SettingsView: View {
                             }
 
                             // ゲージ設定
-                            SettingsSection(title: "感情ゲージ", icon: "chart.bar.fill", horizontalPadding: horizontalPadding) {
+                            SettingsSection(title: L10n.text(.gaugeSettings, language: language), icon: "chart.bar.fill", horizontalPadding: horizontalPadding) {
                                 VStack(alignment: .leading, spacing: 12) {
-                                    gaugeInfo(range: "0 〜 30", label: "通常状態", color: Color(hex: "6B9FD4"))
-                                    gaugeInfo(range: "30 〜 70", label: "反応強状態", color: Color(hex: "A855F7"))
-                                    gaugeInfo(range: "70 〜 100", label: "特別状態 ✨", color: Color(hex: "F59E0B"))
+                                    gaugeInfo(range: "0 〜 30", label: L10n.text(.calmState, language: language), color: Color(hex: "6B9FD4"))
+                                    gaugeInfo(range: "30 〜 70", label: L10n.text(.excitedState, language: language), color: Color(hex: "A855F7"))
+                                    gaugeInfo(range: "70 〜 100", label: L10n.text(.specialState, language: language), color: Color(hex: "F59E0B"))
                                 }
                             }
 
+                            // 言語設定
+                            SettingsSection(title: L10n.text(.languageSettings, language: language), icon: "globe", horizontalPadding: horizontalPadding) {
+                                languagePicker
+                            }
+
                             // アプリ情報
-                            SettingsSection(title: "アプリ情報", icon: "info.circle.fill", horizontalPadding: horizontalPadding) {
+                            SettingsSection(title: L10n.text(.appInfo, language: language), icon: "info.circle.fill", horizontalPadding: horizontalPadding) {
                                 VStack(spacing: 12) {
-                                    infoRow(label: "バージョン", value: Bundle.main.shortVersionString)
+                                    infoRow(label: L10n.text(.version, language: language), value: Bundle.main.shortVersionString)
                                     Divider().background(Color.white.opacity(0.1))
-                                    infoRow(label: "ビルド", value: Bundle.main.buildNumberString)
+                                    infoRow(label: L10n.text(.build, language: language), value: Bundle.main.buildNumberString)
                                     Divider().background(Color.white.opacity(0.1))
-                                    infoRow(label: "プレミアム", value: viewModel.isPremium ? "有効" : "無効")
+                                    infoRow(
+                                        label: L10n.text(.premium, language: language),
+                                        value: viewModel.isPremium
+                                            ? L10n.text(.premiumEnabled, language: language)
+                                            : L10n.text(.premiumDisabled, language: language)
+                                    )
                                 }
                             }
 
@@ -70,7 +97,7 @@ struct SettingsView: View {
                             } label: {
                                 HStack {
                                     Image(systemName: "arrow.counterclockwise")
-                                    Text("設定をリセット")
+                                    Text(L10n.text(.resetSettings, language: language))
                                 }
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(Color(hex: "EF4444").opacity(0.8))
@@ -81,16 +108,18 @@ struct SettingsView: View {
                             .buttonStyle(ScaleButtonStyle())
                             .padding(.horizontal, horizontalPadding)
                         }
+                        .frame(maxWidth: contentWidth)
+                        .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                     }
                 }
             }
-            .navigationTitle("設定")
+            .navigationTitle(L10n.text(.settingsTitle, language: language))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("閉じる") { dismiss() }
+                    Button(L10n.text(.close, language: language)) { dismiss() }
                         .foregroundColor(.white)
                 }
             }
@@ -103,7 +132,7 @@ struct SettingsView: View {
 
     private var sensitivityPreview: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("感度プレビュー")
+            Text(L10n.text(.sensitivityPreview, language: language))
                 .font(.system(size: 12, weight: .medium))
                 .foregroundColor(.white.opacity(0.5))
 
@@ -119,6 +148,16 @@ struct SettingsView: View {
             .frame(height: 40, alignment: .bottom)
             .animation(.spring(response: 0.3), value: viewModel.sensitivity)
         }
+    }
+
+    private var languagePicker: some View {
+        Picker("", selection: languageSelection) {
+            ForEach(AppLanguage.allCases) { appLanguage in
+                Text(appLanguage.displayName).tag(appLanguage)
+            }
+        }
+        .pickerStyle(.segmented)
+        .frame(maxWidth: 260, alignment: .leading)
     }
 
     private func gaugeInfo(range: String, label: String, color: Color) -> some View {
@@ -159,12 +198,7 @@ struct SettingsView: View {
     }
 
     private func sensitivityLabel(_ value: Double) -> String {
-        switch value {
-        case ..<0.5: return "低"
-        case ..<1.2: return "標準"
-        case ..<2.0: return "高"
-        default:     return "最高"
-        }
+        L10n.sensitivityLabel(value, language: language)
     }
 
     private func resetSettings() {

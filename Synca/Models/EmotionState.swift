@@ -22,6 +22,17 @@ enum EmotionState: String, CaseIterable, Equatable {
         }
     }
 
+    func displayName(for language: AppLanguage) -> String {
+        switch self {
+        case .calm:
+            return language == .japanese ? "通常" : "Calm"
+        case .excited:
+            return language == .japanese ? "反応強" : "Excited"
+        case .special:
+            return language == .japanese ? "特別状態" : "Special"
+        }
+    }
+
     var primaryColor: Color {
         switch self {
         case .calm:    return Color(hex: "6B9FD4")

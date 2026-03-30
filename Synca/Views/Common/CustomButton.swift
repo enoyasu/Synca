@@ -58,8 +58,9 @@ struct IconButton: View {
     }
 
     var body: some View {
-        let iconSize: CGFloat = width < 60 ? 18 : 20
-        let labelSize: CGFloat = width < 60 ? 9 : 10
+        let iconSize: CGFloat = width < 50 ? 16 : (width < 60 ? 18 : 20)
+        let labelSize: CGFloat = width < 50 ? 8 : (width < 60 ? 9 : 10)
+        let buttonHeight: CGFloat = width < 50 ? 54 : 56
 
         Button(action: action) {
             VStack(spacing: 4) {
@@ -71,7 +72,7 @@ struct IconButton: View {
                     .minimumScaleFactor(0.8)
             }
             .foregroundColor(color)
-            .frame(width: width, height: 56)
+            .frame(width: width, height: buttonHeight)
             .background(
                 RoundedRectangle(cornerRadius: 14)
                     .fill(color.opacity(0.12))

@@ -4,14 +4,29 @@ import SwiftUI
 struct EmotionGaugeView: View {
     let gauge: Double           // 0.0〜100.0
     let state: EmotionState
+    let layoutWidth: CGFloat
 
+    @AppStorage(AppPreferenceKey.appLanguage) private var appLanguageRaw = AppLanguage.japanese.rawValue
     @State private var animatedGauge: Double = 0
     @State private var shimmerOffset: CGFloat = -200
 
     private let barHeight: CGFloat = 14
     private let cornerRadius: CGFloat = 8
 
+    init(gauge: Double, state: EmotionState, layoutWidth: CGFloat = 360) {
+        self.gauge = gauge
+        self.state = state
+        self.layoutWidth = layoutWidth
+    }
+
+    private var language: AppLanguage {
+        AppLanguage(rawValue: appLanguageRaw) ?? .japanese
+    }
+
     var body: some View {
+        let isCompactWidth = layoutWidth < 330
+        let isMediumWidth = layoutWidth < 390
+
         VStack(spacing: 10) {
             // ラベル行
             HStack {
@@ -21,9 +36,11 @@ struct EmotionGaugeView: View {
                         .frame(width: 8, height: 8)
                         .shadow(color: state.primaryColor, radius: 4)
 
-                    Text(state.displayName)
+                    Text(state.displayName(for: language))
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(state.primaryColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                         .animation(.easeInOut(duration: 0.4), value: state)
                 }
 
@@ -103,16 +120,34 @@ struct EmotionGaugeView: View {
             .frame(height: barHeight + 6)
 
             // 状態インジケーター
-            HStack(spacing: 0) {
-                stateIndicator(label: "通常", range: 0...30, color: Color(hex: "6B9FD4"))
-                Spacer()
-                stateIndicator(label: "反応強", range: 30...70, color: Color(hex: "A855F7"))
-                Spacer()
-                stateIndicator(label: "特別", range: 70...100, color: Color(hex: "F59E0B"))
+            HStack(spacing: isCompactWidth ? 4 : 8) {
+                stateIndicator(
+                    label: isCompactWidth ? compactStateLabel(for: .calm) : fullStateLabel(for: .calm),
+                    range: 0...30,
+                    color: Color(hex: "6B9FD4"),
+                    isCompactWidth: isCompactWidth
+                )
+                .frame(maxWidth: .infinity)
+
+                stateIndicator(
+                    label: isCompactWidth ? compactStateLabel(for: .excited) : fullStateLabel(for: .excited),
+                    range: 30...70,
+                    color: Color(hex: "A855F7"),
+                    isCompactWidth: isCompactWidth
+                )
+                .frame(maxWidth: .infinity)
+
+                stateIndicator(
+                    label: isCompactWidth ? compactStateLabel(for: .special) : fullStateLabel(for: .special),
+                    range: 70...100,
+                    color: Color(hex: "F59E0B"),
+                    isCompactWidth: isCompactWidth
+                )
+                .frame(maxWidth: .infinity)
             }
             .padding(.horizontal, 4)
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, isCompactWidth ? 12 : (isMediumWidth ? 14 : 18))
         .padding(.vertical, 16)
         .glassCard()
         .onAppear {
@@ -124,18 +159,41 @@ struct EmotionGaugeView: View {
         }
     }
 
-    private func stateIndicator(label: String, range: ClosedRange<Double>, color: Color) -> some View {
+    private func stateIndicator(
+        label: String,
+        range: ClosedRange<Double>,
+        color: Color,
+        isCompactWidth: Bool
+    ) -> some View {
         let isActive = state == EmotionState(gauge: (range.lowerBound + range.upperBound) / 2)
         return Text(label)
-            .font(.system(size: 10, weight: isActive ? .bold : .regular))
+            .font(.system(size: isCompactWidth ? 9 : 10, weight: isActive ? .bold : .regular))
             .foregroundColor(isActive ? color : .white.opacity(0.35))
-            .padding(.horizontal, 8)
+            .lineLimit(1)
+            .minimumScaleFactor(0.65)
+            .padding(.horizontal, isCompactWidth ? 4 : 8)
             .padding(.vertical, 3)
             .background(
                 RoundedRectangle(cornerRadius: 6)
                     .fill(isActive ? color.opacity(0.18) : Color.clear)
             )
             .animation(.easeInOut(duration: 0.3), value: state)
+    }
+
+    private func fullStateLabel(for state: EmotionState) -> String {
+        switch state {
+        case .calm: return L10n.text(.calmState, language: language)
+        case .excited: return L10n.text(.excitedState, language: language)
+        case .special: return L10n.text(.specialState, language: language)
+        }
+    }
+
+    private func compactStateLabel(for state: EmotionState) -> String {
+        switch state {
+        case .calm: return L10n.text(.calmChip, language: language)
+        case .excited: return L10n.text(.excitedChip, language: language)
+        case .special: return L10n.text(.specialChip, language: language)
+        }
     }
 
     private func startShimmer() {

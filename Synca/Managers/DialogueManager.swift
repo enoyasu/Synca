@@ -6,7 +6,7 @@ final class DialogueManager {
     private var lastIndices: [String: Int] = [:]
 
     // MARK: - Dialogue Database
-    private let dialogues: [String: [EmotionState: [String]]] = [
+    private let japaneseDialogues: [String: [EmotionState: [String]]] = [
         // ─────────────────────────────────────
         // Yuna
         // ─────────────────────────────────────
@@ -117,17 +117,117 @@ final class DialogueManager {
         ]
     ]
 
+    private let englishDialogues: [String: [EmotionState: [String]]] = [
+        "yuna": [
+            .calm: [
+                "Hi there! Let's have fun today.",
+                "Take it easy, no rush.",
+                "Feeling relaxed?",
+                "Want to try something fun?",
+                "How are you feeling today?",
+                "Try moving a little!"
+            ],
+            .excited: [
+                "This is getting fun!",
+                "Great rhythm!",
+                "Want to keep going?",
+                "Awesome! Keep it up!",
+                "Your energy is rising!",
+                "Moving together feels great!",
+                "Feel it more!"
+            ],
+            .special: [
+                "Amazing!!",
+                "I love this rhythm!",
+                "Let's hype it up together!",
+                "What incredible energy!",
+                "More! More!",
+                "This feeling is the best!!"
+            ]
+        ],
+        "hana": [
+            .calm: [
+                "So calm and gentle.",
+                "Like a soft breeze.",
+                "Let's go with the flow.",
+                "Such a peaceful moment.",
+                "I feel calm with you."
+            ],
+            .excited: [
+                "It feels like flowers blooming!",
+                "That movement is lovely.",
+                "This feels so good!",
+                "Let's move a bit more!",
+                "Feels like riding the wind."
+            ],
+            .special: [
+                "In full bloom!!",
+                "This feels incredible!",
+                "Let's dance together!",
+                "I didn't expect this much fun!",
+                "Stay with me a little longer!"
+            ]
+        ],
+        "riku": [
+            .calm: [
+                "It's like a quiet night.",
+                "Very stable...",
+                "Like watching the stars.",
+                "A calm day again.",
+                "Let's take it slow."
+            ],
+            .excited: [
+                "Now this is interesting.",
+                "The data is reacting.",
+                "Nice pattern.",
+                "Keep this pace going.",
+                "The rhythm is locking in."
+            ],
+            .special: [
+                "Perfect sync!",
+                "We've exceeded the limit!",
+                "This is special data.",
+                "Let's set a record together.",
+                "I'll remember this moment."
+            ]
+        ],
+        "sora": [
+            .calm: [
+                "Feels like we can go anywhere.",
+                "As free as the sky.",
+                "Is this the start of a journey?",
+                "The wind feels nice.",
+                "Let's go slowly."
+            ],
+            .excited: [
+                "Adventure has started!",
+                "Let's keep moving forward!",
+                "This trip is getting fun!",
+                "Let's explore together!",
+                "I can see something new ahead!"
+            ],
+            .special: [
+                "Best adventure ever!!",
+                "We can fly anywhere!",
+                "Let's go beyond the sky!",
+                "You're the best partner!",
+                "This view is incredible!"
+            ]
+        ]
+    ]
+
     // MARK: - Public
 
     /// 指定キャラクター・状態に対応するセリフを返す
-    func getDialogue(for state: EmotionState, characterId: String) -> String {
-        guard let charDialogues = dialogues[characterId],
+    func getDialogue(for state: EmotionState, characterId: String, language: AppLanguage = .japanese) -> String {
+        let source = language == .english ? englishDialogues : japaneseDialogues
+        guard let charDialogues = source[characterId],
               let stateLines = charDialogues[state],
               !stateLines.isEmpty else {
             return "..."
         }
 
-        let key = "\(characterId)-\(state.rawValue)"
+        let key = "\(language.rawValue)-\(characterId)-\(state.rawValue)"
         let lastIndex = lastIndices[key] ?? -1
 
         let newIndex: Int

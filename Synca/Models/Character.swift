@@ -36,4 +36,8 @@ extension Character {
             endPoint: .bottomTrailing
         )
     }
+
+    func localizedDescription(for language: AppLanguage) -> String {
+        L10n.characterDescription(id: id, fallbackJapanese: description, language: language)
+    }
 }
