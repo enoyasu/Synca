@@ -12,9 +12,16 @@ struct CharacterSelectionView: View {
     var body: some View {
         NavigationStack {
             GeometryReader { proxy in
-                let isNarrowWidth = proxy.size.width < 360
-                let horizontalPadding: CGFloat = isNarrowWidth ? 14 : 20
-                let gridSpacing: CGFloat = isNarrowWidth ? 10 : 14
+                let width = proxy.size.width
+                let isNarrowWidth = width < 360
+                let isCompactWidth = width < 410
+                let horizontalPadding: CGFloat = isNarrowWidth ? 14 : (isCompactWidth ? 16 : 20)
+                let gridSpacing: CGFloat = isCompactWidth ? 10 : 14
+                let gridColumnCount = computedGridColumnCount(
+                    totalWidth: width,
+                    horizontalPadding: horizontalPadding,
+                    spacing: gridSpacing
+                )
 
                 ZStack {
                     // 背景
@@ -28,7 +35,7 @@ struct CharacterSelectionView: View {
                                 .padding(.top, 4)
 
                             // キャラクターグリッド
-                            LazyVGrid(columns: gridColumns(isNarrowWidth: isNarrowWidth, spacing: gridSpacing), spacing: gridSpacing) {
+                            LazyVGrid(columns: gridColumns(count: gridColumnCount, spacing: gridSpacing), spacing: gridSpacing) {
                                 ForEach(viewModel.availableCharacters) { character in
                                     CharacterCardView(
                                         character: character,
@@ -49,7 +56,7 @@ struct CharacterSelectionView: View {
 
                             // 広告削除オファー
                             if !viewModel.isPremium {
-                                removeAdsCard(isNarrowWidth: isNarrowWidth)
+                                removeAdsCard(isCompactWidth: isCompactWidth)
                                     .padding(.horizontal, horizontalPadding)
                             }
                         }
@@ -109,8 +116,8 @@ struct CharacterSelectionView: View {
     // MARK: - Remove Ads Card
 
     @ViewBuilder
-    private func removeAdsCard(isNarrowWidth: Bool) -> some View {
-        if isNarrowWidth {
+    private func removeAdsCard(isCompactWidth: Bool) -> some View {
+        if isCompactWidth {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 10) {
                     removeAdsIcon
@@ -125,6 +132,8 @@ struct CharacterSelectionView: View {
                     Text("購入")
                         .font(.system(size: 13, weight: .bold))
                         .foregroundColor(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                         .background(
@@ -157,6 +166,8 @@ struct CharacterSelectionView: View {
                     Text("購入")
                         .font(.system(size: 13, weight: .bold))
                         .foregroundColor(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
                         .background(
@@ -170,7 +181,6 @@ struct CharacterSelectionView: View {
                                 )
                         )
                 }
-                .fixedSize(horizontal: true, vertical: false)
                 .buttonStyle(ScaleButtonStyle())
             }
             .padding(14)
@@ -240,14 +250,15 @@ struct CharacterSelectionView: View {
         isPurchasing = false
     }
 
-    private func gridColumns(isNarrowWidth: Bool, spacing: CGFloat) -> [GridItem] {
-        if isNarrowWidth {
-            return [GridItem(.flexible(), spacing: spacing)]
-        }
-        return [
-            GridItem(.flexible(), spacing: spacing),
-            GridItem(.flexible(), spacing: spacing)
-        ]
+    private func gridColumns(count: Int, spacing: CGFloat) -> [GridItem] {
+        Array(repeating: GridItem(.flexible(), spacing: spacing), count: max(count, 1))
+    }
+
+    private func computedGridColumnCount(totalWidth: CGFloat, horizontalPadding: CGFloat, spacing: CGFloat) -> Int {
+        let availableWidth = max(totalWidth - horizontalPadding * 2, 0)
+        let minimumCardWidth: CGFloat = 170
+        let estimatedCount = Int((availableWidth + spacing) / (minimumCardWidth + spacing))
+        return max(min(estimatedCount, 2), 1)
     }
 }
 

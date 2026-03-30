@@ -7,77 +7,82 @@ struct SettingsView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color(hex: "0A0A1A").ignoresSafeArea()
+            GeometryReader { proxy in
+                let width = proxy.size.width
+                let horizontalPadding: CGFloat = width < 360 ? 14 : (width < 410 ? 16 : 20)
 
-                ScrollView {
-                    VStack(spacing: 16) {
-                        // センサー設定
-                        SettingsSection(title: "センサー設定", icon: "gyroscope") {
-                            VStack(spacing: 18) {
+                ZStack {
+                    Color(hex: "0A0A1A").ignoresSafeArea()
+
+                    ScrollView {
+                        VStack(spacing: 16) {
+                            // センサー設定
+                            SettingsSection(title: "センサー設定", icon: "gyroscope", horizontalPadding: horizontalPadding) {
+                                VStack(spacing: 18) {
+                                    SettingsSlider(
+                                        title: "感度",
+                                        icon: "dial.high.fill",
+                                        value: $viewModel.sensitivity,
+                                        range: 0.2...3.0,
+                                        displayValue: sensitivityLabel(viewModel.sensitivity)
+                                    )
+
+                                    Divider().background(Color.white.opacity(0.1))
+
+                                    sensitivityPreview
+                                }
+                            }
+
+                            // オーディオ設定
+                            SettingsSection(title: "オーディオ", icon: "speaker.wave.2.fill", horizontalPadding: horizontalPadding) {
                                 SettingsSlider(
-                                    title: "感度",
-                                    icon: "dial.high.fill",
-                                    value: $viewModel.sensitivity,
-                                    range: 0.2...3.0,
-                                    displayValue: sensitivityLabel(viewModel.sensitivity)
+                                    title: "音量",
+                                    icon: "speaker.fill",
+                                    value: $viewModel.volume,
+                                    range: 0.0...1.0,
+                                    displayValue: "\(Int(viewModel.volume * 100))%"
                                 )
-
-                                Divider().background(Color.white.opacity(0.1))
-
-                                sensitivityPreview
                             }
-                        }
 
-                        // オーディオ設定
-                        SettingsSection(title: "オーディオ", icon: "speaker.wave.2.fill") {
-                            SettingsSlider(
-                                title: "音量",
-                                icon: "speaker.fill",
-                                value: $viewModel.volume,
-                                range: 0.0...1.0,
-                                displayValue: "\(Int(viewModel.volume * 100))%"
-                            )
-                        }
-
-                        // ゲージ設定
-                        SettingsSection(title: "感情ゲージ", icon: "chart.bar.fill") {
-                            VStack(alignment: .leading, spacing: 12) {
-                                gaugeInfo(range: "0 〜 30", label: "通常状態", color: Color(hex: "6B9FD4"))
-                                gaugeInfo(range: "30 〜 70", label: "反応強状態", color: Color(hex: "A855F7"))
-                                gaugeInfo(range: "70 〜 100", label: "特別状態 ✨", color: Color(hex: "F59E0B"))
+                            // ゲージ設定
+                            SettingsSection(title: "感情ゲージ", icon: "chart.bar.fill", horizontalPadding: horizontalPadding) {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    gaugeInfo(range: "0 〜 30", label: "通常状態", color: Color(hex: "6B9FD4"))
+                                    gaugeInfo(range: "30 〜 70", label: "反応強状態", color: Color(hex: "A855F7"))
+                                    gaugeInfo(range: "70 〜 100", label: "特別状態 ✨", color: Color(hex: "F59E0B"))
+                                }
                             }
-                        }
 
-                        // アプリ情報
-                        SettingsSection(title: "アプリ情報", icon: "info.circle.fill") {
-                            VStack(spacing: 12) {
-                                infoRow(label: "バージョン", value: Bundle.main.shortVersionString)
-                                Divider().background(Color.white.opacity(0.1))
-                                infoRow(label: "ビルド", value: Bundle.main.buildNumberString)
-                                Divider().background(Color.white.opacity(0.1))
-                                infoRow(label: "プレミアム", value: viewModel.isPremium ? "有効" : "無効")
+                            // アプリ情報
+                            SettingsSection(title: "アプリ情報", icon: "info.circle.fill", horizontalPadding: horizontalPadding) {
+                                VStack(spacing: 12) {
+                                    infoRow(label: "バージョン", value: Bundle.main.shortVersionString)
+                                    Divider().background(Color.white.opacity(0.1))
+                                    infoRow(label: "ビルド", value: Bundle.main.buildNumberString)
+                                    Divider().background(Color.white.opacity(0.1))
+                                    infoRow(label: "プレミアム", value: viewModel.isPremium ? "有効" : "無効")
+                                }
                             }
-                        }
 
-                        // リセット
-                        Button {
-                            resetSettings()
-                        } label: {
-                            HStack {
-                                Image(systemName: "arrow.counterclockwise")
-                                Text("設定をリセット")
+                            // リセット
+                            Button {
+                                resetSettings()
+                            } label: {
+                                HStack {
+                                    Image(systemName: "arrow.counterclockwise")
+                                    Text("設定をリセット")
+                                }
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(Color(hex: "EF4444").opacity(0.8))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 14)
+                                .glassCard(cornerRadius: 14)
                             }
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(Color(hex: "EF4444").opacity(0.8))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .glassCard(cornerRadius: 14)
+                            .buttonStyle(ScaleButtonStyle())
+                            .padding(.horizontal, horizontalPadding)
                         }
-                        .buttonStyle(ScaleButtonStyle())
-                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
                     }
-                    .padding(.vertical, 12)
                 }
             }
             .navigationTitle("設定")
@@ -147,6 +152,9 @@ struct SettingsView: View {
             Text(value)
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .layoutPriority(1)
         }
     }
 
@@ -172,6 +180,7 @@ struct SettingsView: View {
 private struct SettingsSection<Content: View>: View {
     let title: String
     let icon: String
+    let horizontalPadding: CGFloat
     @ViewBuilder let content: () -> Content
 
     var body: some View {
@@ -193,7 +202,7 @@ private struct SettingsSection<Content: View>: View {
                 .padding(16)
                 .glassCard(cornerRadius: 16)
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, horizontalPadding)
     }
 }
 
@@ -221,7 +230,9 @@ private struct SettingsSlider: View {
                 Text(displayValue)
                     .font(.system(size: 14, weight: .bold, design: .rounded))
                     .foregroundColor(Color(hex: "A78BFA"))
-                    .frame(width: 50, alignment: .trailing)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
+                    .frame(minWidth: 44, alignment: .trailing)
             }
 
             Slider(value: $value, in: range)
