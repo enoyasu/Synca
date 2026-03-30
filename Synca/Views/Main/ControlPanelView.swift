@@ -84,7 +84,7 @@ struct ControlPanelView: View {
         let dialogueLineLimit = compactMode ? 2 : (isCompactWidth ? 6 : (layoutWidth < 400 ? 4 : 3))
         let iconSize: CGFloat = isCompactWidth ? 30 : 32
 
-        return HStack(alignment: .top, spacing: 12) {
+        return HStack(alignment: .center, spacing: 12) {
             Circle()
                 .fill(
                     LinearGradient(
