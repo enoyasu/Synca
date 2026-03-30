@@ -45,12 +45,25 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Tunables
     private enum GaugeTuning {
-        // 感度最小(0.2)で通常利用時にMaxまで約30分を目安に調整
-        static let increasePerSecond: Double = 1.8
+        // 感度ごとの到達目標時間:
+        // 最低(0.2) -> 30分, 1つ前(2.0) -> 1分, 最高(3.0) -> 30秒
+        static let minSensitivity: Double = 0.2
+        static let preMaxSensitivity: Double = 2.0
+        static let maxSensitivity: Double = 3.0
+        static let minTargetDuration: TimeInterval = 30 * 60
+        static let preMaxTargetDuration: TimeInterval = 60
+        static let maxTargetDuration: TimeInterval = 30
+
         static let decayRate: Double = 0.003
         static let decayInterval: TimeInterval = 0.1
         static let minMotionDelta: Double = 1.0 / 120.0
         static let maxMotionDelta: Double = 0.2
+
+        // 振動強度の係数化
+        static let intensityDeadZone: Double = 0.015
+        static let referenceIntensity: Double = 0.22
+        static let maxIntensityFactor: Double = 3.0
+
         static let pulseThreshold: Double = 0.012
         static let pulseMinInterval: TimeInterval = 0.08
     }
@@ -181,8 +194,13 @@ final class MainViewModel: ObservableObject {
         let result = motionAnalyzer.analyze(data)
         let delta = clampedMotionDelta(for: data.timestamp)
 
-        // ゲージ増加
-        let increase = result.smoothedIntensity * GaugeTuning.increasePerSecond * delta
+        // ゲージ増加（感度ごとの目標時間 + 振動強度係数）
+        let increaseRate = gaugeIncreasePerSecond(for: sensitivity)
+        let intensityFactor = gaugeIntensityFactor(
+            smoothedIntensity: result.smoothedIntensity,
+            sensitivity: sensitivity
+        )
+        let increase = increaseRate * intensityFactor * delta
         emotionGauge = min(emotionGauge + increase, 100.0)
 
         // 振動イベントをUIへ通知（ゲージの増加を視覚化）
@@ -214,6 +232,50 @@ final class MainViewModel: ObservableObject {
         guard let previous = lastMotionTimestamp else { return 1.0 / 30.0 }
         let rawDelta = timestamp - previous
         return min(max(rawDelta, GaugeTuning.minMotionDelta), GaugeTuning.maxMotionDelta)
+    }
+
+    private func gaugeIncreasePerSecond(for sensitivity: Double) -> Double {
+        let targetDuration = targetFillDuration(for: sensitivity)
+        let targetNetIncrease = 100.0 / max(targetDuration, 1)
+        let decayPerSecond = GaugeTuning.decayRate / GaugeTuning.decayInterval
+        return targetNetIncrease + decayPerSecond
+    }
+
+    private func targetFillDuration(for sensitivity: Double) -> TimeInterval {
+        let s = min(max(sensitivity, GaugeTuning.minSensitivity), GaugeTuning.maxSensitivity)
+
+        if s <= GaugeTuning.preMaxSensitivity {
+            let progress = (s - GaugeTuning.minSensitivity) /
+                (GaugeTuning.preMaxSensitivity - GaugeTuning.minSensitivity)
+            return logInterpolate(
+                from: GaugeTuning.minTargetDuration,
+                to: GaugeTuning.preMaxTargetDuration,
+                progress: progress
+            )
+        } else {
+            let progress = (s - GaugeTuning.preMaxSensitivity) /
+                (GaugeTuning.maxSensitivity - GaugeTuning.preMaxSensitivity)
+            return logInterpolate(
+                from: GaugeTuning.preMaxTargetDuration,
+                to: GaugeTuning.maxTargetDuration,
+                progress: progress
+            )
+        }
+    }
+
+    private func logInterpolate(from: Double, to: Double, progress: Double) -> Double {
+        let p = min(max(progress, 0), 1)
+        return exp(log(from) + (log(to) - log(from)) * p)
+    }
+
+    private func gaugeIntensityFactor(smoothedIntensity: Double, sensitivity: Double) -> Double {
+        // MotionService側で感度が乗算済みのため、ここでは一度感度で正規化して
+        // 「実際の振動の強さ」に応じて係数化する。
+        let normalizedIntensity = smoothedIntensity / max(sensitivity, GaugeTuning.minSensitivity)
+        let adjusted = max(normalizedIntensity - GaugeTuning.intensityDeadZone, 0)
+        let reference = max(GaugeTuning.referenceIntensity - GaugeTuning.intensityDeadZone, 0.0001)
+        let normalized = adjusted / reference
+        return min(max(normalized, 0), GaugeTuning.maxIntensityFactor)
     }
 
     private func decayGauge() {
