@@ -22,13 +22,6 @@ struct ControlPanelView: View {
         layoutWidth < 360 || compactMode
     }
 
-    private var sideButtonWidth: CGFloat {
-        if compactMode {
-            return min(max(layoutWidth * 0.22, 64), 92)
-        }
-        return min(max(layoutWidth * 0.24, 78), 104)
-    }
-
     private var sectionSpacing: CGFloat {
         compactMode ? 10 : 12
     }
@@ -45,23 +38,22 @@ struct ControlPanelView: View {
     @ViewBuilder
     private var controlButtons: some View {
         if compactMode {
-            compactRowButtons
+            compactStackedButtons
         } else {
             portraitButtons
         }
     }
 
-    private var compactRowButtons: some View {
-        HStack(spacing: layoutWidth < 400 ? 8 : 12) {
-            characterButton(width: sideButtonWidth)
-                .frame(minWidth: sideButtonWidth, maxWidth: sideButtonWidth)
+    private var compactStackedButtons: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 10) {
+                characterButton(width: nil)
+                    .frame(maxWidth: .infinity)
+                settingsButton(width: nil)
+                    .frame(maxWidth: .infinity)
+            }
 
-            startStopButton(height: 50)
-                .frame(maxWidth: .infinity)
-                .layoutPriority(1)
-
-            settingsButton(width: sideButtonWidth)
-                .frame(minWidth: sideButtonWidth, maxWidth: sideButtonWidth)
+            startStopButton(height: 52)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
