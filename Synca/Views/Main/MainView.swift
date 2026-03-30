@@ -16,6 +16,9 @@ struct MainView: View {
             GeometryReader { proxy in
                 let isCompactHeight = proxy.size.height < 760
                 let characterHeight: CGFloat = isCompactHeight ? 220 : 280
+                let topInset = max(proxy.safeAreaInsets.top, 8)
+                let bottomInset = max(proxy.safeAreaInsets.bottom, 12)
+                let contentMinHeight = max(proxy.size.height - topInset - bottomInset, 0)
 
                 ScrollView(.vertical, showsIndicators: isCompactHeight) {
                     VStack(spacing: 0) {
@@ -49,12 +52,12 @@ struct MainView: View {
                         ControlPanelView()
                             .padding(.top, isCompactHeight ? 6 : 12)
                     }
-                    .frame(minHeight: proxy.size.height - proxy.safeAreaInsets.top, alignment: .top)
-                    .padding(.bottom, max(proxy.safeAreaInsets.bottom, 12))
+                    .padding(.top, topInset)
+                    .frame(minHeight: contentMinHeight, alignment: .top)
+                    .padding(.bottom, bottomInset)
                 }
             }
         }
-        .ignoresSafeArea(edges: .top)
         .onAppear {
             withAnimation(.linear(duration: 20).repeatForever(autoreverses: false)) {
                 bgRotation = 360
@@ -141,6 +144,7 @@ struct MainView: View {
                     .foregroundColor(.white.opacity(0.8))
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
+                    .layoutPriority(1)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
@@ -167,7 +171,13 @@ struct MainView: View {
     }
 }
 
-#Preview {
+#Preview("iPhone 16") {
+    MainView()
+        .environmentObject(MainViewModel())
+        .preferredColorScheme(.dark)
+}
+
+#Preview("iPhone 16 Pro Max") {
     MainView()
         .environmentObject(MainViewModel())
         .preferredColorScheme(.dark)

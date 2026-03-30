@@ -95,6 +95,9 @@ struct CharacterSelectionView: View {
             Text("キャラクターを選んで、一緒に楽しもう！")
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(.white.opacity(0.7))
+                .lineLimit(2)
+                .minimumScaleFactor(0.85)
+                .layoutPriority(1)
             Spacer()
         }
         .padding(.horizontal, 14)
@@ -131,8 +134,10 @@ struct CharacterSelectionView: View {
                     .font(.system(size: 12))
                     .foregroundColor(.white.opacity(0.65))
                     .lineLimit(2)
+                    .minimumScaleFactor(0.85)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            .layoutPriority(1)
 
             Spacer()
 
@@ -157,6 +162,7 @@ struct CharacterSelectionView: View {
                             )
                     )
             }
+            .fixedSize(horizontal: true, vertical: false)
             .buttonStyle(ScaleButtonStyle())
         }
         .padding(14)
@@ -190,7 +196,13 @@ struct CharacterSelectionView: View {
     }
 }
 
-#Preview {
+#Preview("iPhone 16") {
+    CharacterSelectionView()
+        .environmentObject(MainViewModel())
+        .preferredColorScheme(.dark)
+}
+
+#Preview("iPhone 16 Pro Max") {
     CharacterSelectionView()
         .environmentObject(MainViewModel())
         .preferredColorScheme(.dark)

@@ -66,6 +66,7 @@ struct ControlPanelView: View {
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.white.opacity(0.9))
                 .lineLimit(2)
+                .minimumScaleFactor(0.9)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentTransition(.opacity)
@@ -99,6 +100,8 @@ struct ControlPanelView: View {
                 Text(viewModel.isRunning ? "STOP" : "START")
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
             }
             .frame(maxWidth: .infinity)
             .frame(height: 52)
