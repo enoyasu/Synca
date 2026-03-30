@@ -7,6 +7,7 @@ struct CharacterView: View {
     let animationState: CharacterAnimationState
     let gauge: Double
     let layoutWidth: CGFloat
+    let scaleBoost: CGFloat
 
     // MARK: - Animation State
     @State private var isBlinking = false
@@ -21,17 +22,20 @@ struct CharacterView: View {
         state: EmotionState,
         animationState: CharacterAnimationState,
         gauge: Double,
-        layoutWidth: CGFloat = 320
+        layoutWidth: CGFloat = 320,
+        scaleBoost: CGFloat = 1.0
     ) {
         self.character = character
         self.state = state
         self.animationState = animationState
         self.gauge = gauge
         self.layoutWidth = layoutWidth
+        self.scaleBoost = scaleBoost
     }
 
     var body: some View {
-        let characterScale = min(max(layoutWidth / 320, 0.76), 1.0)
+        let baseScale = min(max(layoutWidth / 320, 0.76), 1.0)
+        let characterScale = min(max(baseScale * scaleBoost, 0.76), 1.22)
 
         ZStack {
             // 背景グロー

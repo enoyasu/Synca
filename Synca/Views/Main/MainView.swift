@@ -29,9 +29,21 @@ struct MainView: View {
                 let portraitSideButtonWidth: CGFloat = portraitContentWidth < 300 ? 42 : (portraitContentWidth < 340 ? 44 : (portraitContentWidth < 380 ? 48 : 56))
                 let landscapeColumnsWidth: CGFloat = width > 1000 ? min(availableWidth, 940) : min(availableWidth, 860)
                 let landscapeSpacing: CGFloat = width < 780 ? 10 : 14
-                let landscapeColumnWidth = max((landscapeColumnsWidth - landscapeSpacing) / 2, 0)
-                let landscapeCharacterHeight = max(min(height * 0.55, 320), 190)
-                let landscapeSideButtonWidth: CGFloat = landscapeColumnWidth < 320 ? 44 : (landscapeColumnWidth < 380 ? 48 : 56)
+                let landscapeTotalColumnWidth = max(landscapeColumnsWidth - landscapeSpacing, 0)
+                let landscapeTargetLeftRatio: CGFloat = width >= 900 ? 0.6 : 0.56
+                let landscapeMinColumnWidth: CGFloat = 240
+                let landscapeLeftColumnWidth: CGFloat = {
+                    if landscapeTotalColumnWidth >= landscapeMinColumnWidth * 2 {
+                        let raw = landscapeTotalColumnWidth * landscapeTargetLeftRatio
+                        return min(max(raw, landscapeMinColumnWidth), landscapeTotalColumnWidth - landscapeMinColumnWidth)
+                    } else {
+                        return landscapeTotalColumnWidth * 0.52
+                    }
+                }()
+                let landscapeRightColumnWidth = max(landscapeTotalColumnWidth - landscapeLeftColumnWidth, 0)
+                let landscapeCharacterHeight = max(min(height * 0.66, 430), 220)
+                let landscapeCharacterScaleBoost: CGFloat = width >= 900 ? 1.2 : (width >= 760 ? 1.16 : 1.1)
+                let landscapeSideButtonWidth: CGFloat = landscapeRightColumnWidth < 320 ? 44 : (landscapeRightColumnWidth < 380 ? 48 : 56)
                 let topInset = max(proxy.safeAreaInsets.top, 8)
                 let bottomInset = max(proxy.safeAreaInsets.bottom, 12)
                 let contentMinHeight = max(height - topInset - bottomInset, 0)
@@ -50,10 +62,12 @@ struct MainView: View {
                             if isLandscape {
                                 landscapeContent(
                                     horizontalPadding: horizontalPadding,
-                                    columnWidth: landscapeColumnWidth,
+                                    leftColumnWidth: landscapeLeftColumnWidth,
+                                    rightColumnWidth: landscapeRightColumnWidth,
                                     columnsWidth: landscapeColumnsWidth,
                                     spacing: landscapeSpacing,
                                     characterHeight: landscapeCharacterHeight,
+                                    characterScaleBoost: landscapeCharacterScaleBoost,
                                     sideButtonWidth: landscapeSideButtonWidth,
                                     language: language
                                 )
@@ -179,42 +193,45 @@ struct MainView: View {
 
     private func landscapeContent(
         horizontalPadding: CGFloat,
-        columnWidth: CGFloat,
+        leftColumnWidth: CGFloat,
+        rightColumnWidth: CGFloat,
         columnsWidth: CGFloat,
         spacing: CGFloat,
         characterHeight: CGFloat,
+        characterScaleBoost: CGFloat,
         sideButtonWidth: CGFloat,
         language: AppLanguage
     ) -> some View {
         HStack(alignment: .top, spacing: spacing) {
             VStack(spacing: 12) {
-                headerBar(layoutWidth: columnWidth, language: language)
+                headerBar(layoutWidth: leftColumnWidth, language: language)
                 CharacterView(
                     character: viewModel.currentCharacter,
                     state: viewModel.emotionState,
                     animationState: viewModel.characterAnimationState,
                     gauge: viewModel.emotionGauge,
-                    layoutWidth: columnWidth
+                    layoutWidth: leftColumnWidth,
+                    scaleBoost: characterScaleBoost
                 )
                 .frame(height: characterHeight)
             }
-            .frame(width: columnWidth, alignment: .top)
+            .frame(width: leftColumnWidth, alignment: .top)
 
             VStack(spacing: 12) {
                 EmotionGaugeView(
                     gauge: viewModel.emotionGauge,
                     state: viewModel.emotionState,
-                    layoutWidth: columnWidth,
+                    layoutWidth: rightColumnWidth,
                     pulseTrigger: viewModel.gaugePulseTrigger,
                     pulseStrength: viewModel.gaugePulseStrength
                 )
                 ControlPanelView(
                     horizontalPadding: 0,
                     sideButtonWidth: sideButtonWidth,
-                    layoutWidth: columnWidth
+                    layoutWidth: rightColumnWidth
                 )
             }
-            .frame(width: columnWidth, alignment: .top)
+            .frame(width: rightColumnWidth, alignment: .top)
         }
         .frame(maxWidth: columnsWidth)
         .frame(maxWidth: .infinity)
