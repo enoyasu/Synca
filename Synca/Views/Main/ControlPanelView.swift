@@ -5,12 +5,10 @@ struct ControlPanelView: View {
     @EnvironmentObject var viewModel: MainViewModel
     @AppStorage(AppPreferenceKey.appLanguage) private var appLanguageRaw = AppLanguage.japanese.rawValue
     let horizontalPadding: CGFloat
-    let sideButtonWidth: CGFloat
     let layoutWidth: CGFloat
 
-    init(horizontalPadding: CGFloat = 20, sideButtonWidth: CGFloat = 64, layoutWidth: CGFloat = 390) {
+    init(horizontalPadding: CGFloat = 20, layoutWidth: CGFloat = 390) {
         self.horizontalPadding = horizontalPadding
-        self.sideButtonWidth = sideButtonWidth
         self.layoutWidth = layoutWidth
     }
 
@@ -18,12 +16,17 @@ struct ControlPanelView: View {
         AppLanguage(rawValue: appLanguageRaw) ?? .japanese
     }
 
+    private var isCompactWidth: Bool {
+        layoutWidth < 360
+    }
+
+    private var sideButtonWidth: CGFloat {
+        min(max(layoutWidth * 0.22, 72), 96)
+    }
+
     var body: some View {
         VStack(spacing: 16) {
-            // セリフ吹き出し
             dialogueBubble
-
-            // メインコントロール
             controlButtons
         }
         .padding(.horizontal, horizontalPadding)
@@ -32,7 +35,7 @@ struct ControlPanelView: View {
 
     @ViewBuilder
     private var controlButtons: some View {
-        if layoutWidth < 370 {
+        if isCompactWidth {
             stackedButtons
         } else {
             ViewThatFits(in: .horizontal) {
@@ -43,12 +46,18 @@ struct ControlPanelView: View {
     }
 
     private var compactRowButtons: some View {
-        HStack(spacing: sideButtonWidth < 60 ? 8 : 12) {
+        HStack(spacing: layoutWidth < 400 ? 8 : 12) {
             characterButton(width: sideButtonWidth)
+                .frame(minWidth: sideButtonWidth, maxWidth: sideButtonWidth)
+
             startStopButton
                 .frame(maxWidth: .infinity)
+                .layoutPriority(1)
+
             settingsButton(width: sideButtonWidth)
+                .frame(minWidth: sideButtonWidth, maxWidth: sideButtonWidth)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var stackedButtons: some View {
@@ -64,16 +73,11 @@ struct ControlPanelView: View {
         }
     }
 
-    // MARK: - Dialogue Bubble
-
     private var dialogueBubble: some View {
-        let isCompactWidth = layoutWidth < 330
-        let isMediumWidth = layoutWidth < 400
-        let dialogueLineLimit = isCompactWidth ? 6 : (isMediumWidth ? 4 : 3)
+        let dialogueLineLimit = isCompactWidth ? 6 : (layoutWidth < 400 ? 4 : 3)
         let iconSize: CGFloat = isCompactWidth ? 30 : 32
 
-        return HStack(spacing: 12) {
-            // キャラアイコン
+        return HStack(alignment: .top, spacing: 12) {
             Circle()
                 .fill(
                     LinearGradient(
@@ -92,7 +96,6 @@ struct ControlPanelView: View {
                         .foregroundColor(.white)
                 )
 
-            // セリフテキスト
             Text(viewModel.currentDialogue)
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.white.opacity(0.9))
@@ -107,14 +110,12 @@ struct ControlPanelView: View {
         }
         .padding(.horizontal, isCompactWidth ? 12 : 14)
         .padding(.vertical, 10)
-        .frame(minHeight: isCompactWidth ? 76 : 64, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: isCompactWidth ? 76 : 64, alignment: .leading)
         .glassCard(cornerRadius: 16)
         .onTapGesture {
             viewModel.refreshDialogue()
         }
     }
-
-    // MARK: - Start / Stop Button
 
     private var startStopButton: some View {
         Button {
@@ -153,8 +154,11 @@ struct ControlPanelView: View {
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(Color.white.opacity(0.2), lineWidth: 1)
             )
-            .shadow(color: (viewModel.isRunning ? Color.red : Color(hex: "A78BFA")).opacity(0.4),
-                    radius: 12, y: 4)
+            .shadow(
+                color: (viewModel.isRunning ? Color.red : Color(hex: "A78BFA")).opacity(0.4),
+                radius: 12,
+                y: 4
+            )
         }
         .buttonStyle(ScaleButtonStyle())
         .animation(.spring(response: 0.3), value: viewModel.isRunning)

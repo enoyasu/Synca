@@ -23,18 +23,14 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             GeometryReader { proxy in
-                let width = proxy.size.width
-                let horizontalPadding: CGFloat = width < 360 ? 10 : (width < 410 ? 12 : 16)
-                let availableWidth = max(width - horizontalPadding * 2, 0)
-                let contentWidth: CGFloat = width > 700 ? min(availableWidth, 430) : min(availableWidth, 470)
+                let metrics = SettingsLayoutMetrics(proxy: proxy)
 
                 ZStack {
                     Color(hex: "0A0A1A").ignoresSafeArea()
 
                     ScrollView {
                         VStack(spacing: 16) {
-                            // センサー設定
-                            SettingsSection(title: L10n.text(.sensorSettings, language: language), icon: "gyroscope", horizontalPadding: horizontalPadding) {
+                            SettingsSection(title: L10n.text(.sensorSettings, language: language), icon: "gyroscope", horizontalPadding: 0) {
                                 VStack(spacing: 18) {
                                     SettingsSlider(
                                         title: L10n.text(.sensitivity, language: language),
@@ -50,8 +46,7 @@ struct SettingsView: View {
                                 }
                             }
 
-                            // オーディオ設定
-                            SettingsSection(title: L10n.text(.audioSettings, language: language), icon: "speaker.wave.2.fill", horizontalPadding: horizontalPadding) {
+                            SettingsSection(title: L10n.text(.audioSettings, language: language), icon: "speaker.wave.2.fill", horizontalPadding: 0) {
                                 SettingsSlider(
                                     title: L10n.text(.volume, language: language),
                                     icon: "speaker.fill",
@@ -61,8 +56,7 @@ struct SettingsView: View {
                                 )
                             }
 
-                            // ゲージ設定
-                            SettingsSection(title: L10n.text(.gaugeSettings, language: language), icon: "chart.bar.fill", horizontalPadding: horizontalPadding) {
+                            SettingsSection(title: L10n.text(.gaugeSettings, language: language), icon: "chart.bar.fill", horizontalPadding: 0) {
                                 VStack(alignment: .leading, spacing: 12) {
                                     gaugeInfo(range: "0 〜 30", label: L10n.text(.calmState, language: language), color: Color(hex: "6B9FD4"))
                                     gaugeInfo(range: "30 〜 70", label: L10n.text(.excitedState, language: language), color: Color(hex: "A855F7"))
@@ -74,13 +68,11 @@ struct SettingsView: View {
                                 }
                             }
 
-                            // 言語設定
-                            SettingsSection(title: L10n.text(.languageSettings, language: language), icon: "globe", horizontalPadding: horizontalPadding) {
+                            SettingsSection(title: L10n.text(.languageSettings, language: language), icon: "globe", horizontalPadding: 0) {
                                 languagePicker
                             }
 
-                            // アプリ情報
-                            SettingsSection(title: L10n.text(.appInfo, language: language), icon: "info.circle.fill", horizontalPadding: horizontalPadding) {
+                            SettingsSection(title: L10n.text(.appInfo, language: language), icon: "info.circle.fill", horizontalPadding: 0) {
                                 VStack(spacing: 12) {
                                     infoRow(label: L10n.text(.version, language: language), value: Bundle.main.shortVersionString)
                                     Divider().background(Color.white.opacity(0.1))
@@ -95,7 +87,6 @@ struct SettingsView: View {
                                 }
                             }
 
-                            // リセット
                             Button {
                                 resetSettings()
                             } label: {
@@ -110,12 +101,12 @@ struct SettingsView: View {
                                 .glassCard(cornerRadius: 14)
                             }
                             .buttonStyle(ScaleButtonStyle())
-                            .padding(.horizontal, horizontalPadding)
                         }
-                        .frame(maxWidth: contentWidth)
-                        .frame(maxWidth: .infinity)
+                        .frame(width: metrics.contentWidth, alignment: .leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.vertical, 12)
                     }
+                    .safeAreaPadding(.horizontal, metrics.baseHorizontalPadding)
                 }
             }
             .navigationTitle(L10n.text(.settingsTitle, language: language))
@@ -131,8 +122,6 @@ struct SettingsView: View {
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
     }
-
-    // MARK: - Sub Views
 
     private var sensitivityPreview: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -161,7 +150,7 @@ struct SettingsView: View {
             }
         }
         .pickerStyle(.segmented)
-        .frame(maxWidth: 260, alignment: .leading)
+        .frame(maxWidth: min(320, UIScreen.main.bounds.width - 48), alignment: .leading)
     }
 
     private func gaugeInfo(range: String, label: String, color: Color) -> some View {
@@ -177,7 +166,7 @@ struct SettingsView: View {
                     .font(.system(size: 11))
                     .foregroundColor(.white.opacity(0.5))
             }
-            Spacer()
+            Spacer(minLength: 8)
             Circle()
                 .fill(color.opacity(0.2))
                 .overlay(Circle().stroke(color.opacity(0.5), lineWidth: 1))
@@ -187,16 +176,20 @@ struct SettingsView: View {
     }
 
     private func infoRow(label: String, value: String) -> some View {
-        HStack {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
             Text(label)
                 .font(.system(size: 14))
                 .foregroundColor(.white.opacity(0.7))
-            Spacer()
+                .fixedSize(horizontal: false, vertical: true)
+
+            Spacer(minLength: 8)
+
             Text(value)
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.white)
-                .lineLimit(1)
+                .lineLimit(2)
                 .minimumScaleFactor(0.75)
+                .multilineTextAlignment(.trailing)
                 .layoutPriority(1)
         }
     }
@@ -209,7 +202,7 @@ struct SettingsView: View {
         let seconds = viewModel.gaugeDecayDurationSeconds(level: viewModel.gaugeDecayLevel)
 
         return VStack(alignment: .leading, spacing: 8) {
-            HStack {
+            HStack(alignment: .top, spacing: 8) {
                 HStack(spacing: 6) {
                     Image(systemName: "arrow.down.forward")
                         .font(.system(size: 13))
@@ -217,8 +210,9 @@ struct SettingsView: View {
                     Text(L10n.text(.gaugeDecaySpeed, language: language))
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                Spacer()
+                Spacer(minLength: 8)
                 Text(L10n.gaugeDecayValueLabel(level: viewModel.gaugeDecayLevel, seconds: seconds, language: language))
                     .font(.system(size: 12, weight: .bold, design: .rounded))
                     .foregroundColor(Color(hex: "A78BFA"))
@@ -249,6 +243,19 @@ struct SettingsView: View {
     }
 }
 
+private struct SettingsLayoutMetrics {
+    let baseHorizontalPadding: CGFloat
+    let contentWidth: CGFloat
+
+    init(proxy: GeometryProxy) {
+        let safeWidth = max(proxy.size.width - proxy.safeAreaInsets.leading - proxy.safeAreaInsets.trailing, 0)
+        baseHorizontalPadding = safeWidth < 360 ? 10 : (safeWidth < 410 ? 12 : 16)
+        let leftBias: CGFloat = min(20, max(safeWidth * 0.08, 0))
+        let usableWidth = max(safeWidth - baseHorizontalPadding * 2 - leftBias, 0)
+        contentWidth = safeWidth > 700 ? min(usableWidth, 430) : min(usableWidth, 470)
+    }
+}
+
 // MARK: - Settings Section
 
 private struct SettingsSection<Content: View>: View {
@@ -259,7 +266,6 @@ private struct SettingsSection<Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // セクションヘッダー
             HStack(spacing: 6) {
                 Image(systemName: icon)
                     .font(.system(size: 13, weight: .semibold))
@@ -269,18 +275,19 @@ private struct SettingsSection<Content: View>: View {
                     .foregroundColor(.white.opacity(0.6))
                     .textCase(.uppercase)
                     .tracking(1)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
             }
             .padding(.horizontal, 4)
 
             content()
                 .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .glassCard(cornerRadius: 16)
         }
         .padding(.horizontal, horizontalPadding)
     }
 }
-
-// MARK: - Settings Slider
 
 private struct SettingsSlider: View {
     let title: String
@@ -291,7 +298,7 @@ private struct SettingsSlider: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            HStack {
+            HStack(alignment: .top, spacing: 8) {
                 HStack(spacing: 6) {
                     Image(systemName: icon)
                         .font(.system(size: 14))
@@ -299,8 +306,9 @@ private struct SettingsSlider: View {
                     Text(title)
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                Spacer()
+                Spacer(minLength: 8)
                 Text(displayValue)
                     .font(.system(size: 14, weight: .bold, design: .rounded))
                     .foregroundColor(Color(hex: "A78BFA"))

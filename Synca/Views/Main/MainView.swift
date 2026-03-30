@@ -14,87 +14,32 @@ struct MainView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            GeometryReader { proxy in
-                let width = proxy.size.width
-                let height = proxy.size.height
-                let isLandscape = width > height
-                let isCompactHeight = height < 760
-                let safeWidth = max(width - proxy.safeAreaInsets.leading - proxy.safeAreaInsets.trailing, 0)
-                let baseHorizontalPadding: CGFloat = safeWidth < 360 ? 10 : (safeWidth < 420 ? 12 : 16)
-                let globalLeftShift: CGFloat = 20
-                let leadingPadding = max(baseHorizontalPadding - globalLeftShift, 0)
-                let trailingPadding = baseHorizontalPadding + globalLeftShift
-                let portraitCharacterHeight: CGFloat = isCompactHeight
-                    ? (safeWidth < 360 ? 200 : 220)
-                    : (safeWidth < 360 ? 250 : 280)
-                let availableWidth = max(safeWidth - leadingPadding - trailingPadding, 0)
-                let portraitContentWidth: CGFloat = safeWidth > 700 ? min(availableWidth, 400) : min(availableWidth, 440)
-                let portraitSideButtonWidth: CGFloat = portraitContentWidth < 300 ? 42 : (portraitContentWidth < 340 ? 44 : (portraitContentWidth < 380 ? 48 : 56))
-                let landscapeColumnsWidth: CGFloat = safeWidth > 1000 ? min(availableWidth, 940) : min(availableWidth, 860)
-                let landscapeSpacing: CGFloat = safeWidth < 780 ? 10 : 14
-                let landscapeTotalColumnWidth = max(landscapeColumnsWidth - landscapeSpacing, 0)
-                let landscapeTargetLeftRatio: CGFloat = safeWidth >= 900 ? 0.6 : 0.56
-                let landscapeMinColumnWidth: CGFloat = 240
-                let landscapeLeftColumnWidth: CGFloat = {
-                    if landscapeTotalColumnWidth >= landscapeMinColumnWidth * 2 {
-                        let raw = landscapeTotalColumnWidth * landscapeTargetLeftRatio
-                        return min(max(raw, landscapeMinColumnWidth), landscapeTotalColumnWidth - landscapeMinColumnWidth)
-                    } else {
-                        return landscapeTotalColumnWidth * 0.52
-                    }
-                }()
-                let landscapeRightColumnWidth = max(landscapeTotalColumnWidth - landscapeLeftColumnWidth, 0)
-                let landscapeCharacterHeight = max(min(height * 0.66, 430), 220)
-                let landscapeCharacterScaleBoost: CGFloat = safeWidth >= 900 ? 1.2 : (safeWidth >= 760 ? 1.16 : 1.1)
-                let landscapeSideButtonWidth: CGFloat = landscapeRightColumnWidth < 320 ? 44 : (landscapeRightColumnWidth < 380 ? 48 : 56)
-                let topInset = max(proxy.safeAreaInsets.top, 8)
-                let bottomInset = max(proxy.safeAreaInsets.bottom, 12)
-                let contentMinHeight = max(height - topInset - bottomInset, 0)
+        GeometryReader { proxy in
+            let metrics = MainLayoutMetrics(proxy: proxy)
 
-                ZStack(alignment: .top) {
-                    backgroundLayer(
-                        containerWidth: width,
-                        containerHeight: height
-                    )
+            ZStack(alignment: .top) {
+                backgroundLayer(
+                    containerWidth: proxy.size.width,
+                    containerHeight: proxy.size.height
+                )
 
-                    ScrollView(.vertical, showsIndicators: isCompactHeight || isLandscape) {
-                        VStack(spacing: 0) {
-                            // 上部：AdMobバナー
-                            AdBannerView(isHidden: viewModel.isPremium)
+                ScrollView(.vertical, showsIndicators: metrics.showsScrollIndicators) {
+                    VStack(spacing: 0) {
+                        AdBannerView(isHidden: viewModel.isPremium)
 
-                            if isLandscape {
-                                landscapeContent(
-                                    leadingPadding: leadingPadding,
-                                    trailingPadding: trailingPadding,
-                                    leftColumnWidth: landscapeLeftColumnWidth,
-                                    rightColumnWidth: landscapeRightColumnWidth,
-                                    columnsWidth: landscapeColumnsWidth,
-                                    spacing: landscapeSpacing,
-                                    characterHeight: landscapeCharacterHeight,
-                                    characterScaleBoost: landscapeCharacterScaleBoost,
-                                    sideButtonWidth: landscapeSideButtonWidth,
-                                    language: language
-                                )
-                            } else {
-                                portraitContent(
-                                    leadingPadding: leadingPadding,
-                                    trailingPadding: trailingPadding,
-                                    contentWidth: portraitContentWidth,
-                                    characterHeight: portraitCharacterHeight,
-                                    sideButtonWidth: portraitSideButtonWidth,
-                                    isCompactHeight: isCompactHeight,
-                                    language: language
-                                )
-                            }
+                        if metrics.useLandscapeColumns {
+                            landscapeContent(metrics: metrics, language: language)
+                        } else {
+                            portraitContent(metrics: metrics, language: language)
                         }
-                        .padding(.top, topInset)
-                        .frame(width: safeWidth, alignment: .top)
-                        .frame(minHeight: contentMinHeight, alignment: .top)
-                        .padding(.bottom, bottomInset)
                     }
+                    .padding(.top, metrics.topInset)
+                    .padding(.bottom, metrics.bottomInset)
+                    .frame(maxWidth: .infinity, minHeight: metrics.minContentHeight, alignment: .topLeading)
                 }
+                .safeAreaPadding(.horizontal, metrics.baseHorizontalPadding)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .onAppear {
             withAnimation(.linear(duration: 20).repeatForever(autoreverses: false)) {
@@ -122,10 +67,8 @@ struct MainView: View {
         let secondarySize = min(max(orbBase * 0.7, 220), 430)
 
         return ZStack {
-            // ベースカラー
             Color(hex: "0A0A1A")
 
-            // ダイナミックグラデーション球
             Circle()
                 .fill(viewModel.emotionState.primaryColor.opacity(0.12))
                 .frame(width: primarySize, height: primarySize)
@@ -145,177 +88,158 @@ struct MainView: View {
         .animation(.easeInOut(duration: 1.5), value: viewModel.emotionState)
     }
 
-    private func portraitContent(
-        leadingPadding: CGFloat,
-        trailingPadding: CGFloat,
-        contentWidth: CGFloat,
-        characterHeight: CGFloat,
-        sideButtonWidth: CGFloat,
-        isCompactHeight: Bool,
-        language: AppLanguage
-    ) -> some View {
+    private func portraitContent(metrics: MainLayoutMetrics, language: AppLanguage) -> some View {
         VStack(spacing: 0) {
-            // ヘッダー
-            headerBar(layoutWidth: contentWidth, language: language)
-                .frame(maxWidth: .infinity)
+            headerBar(layoutWidth: metrics.portraitContentWidth, language: language)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 8)
 
-            // キャラクター
             CharacterView(
                 character: viewModel.currentCharacter,
                 state: viewModel.emotionState,
                 animationState: viewModel.characterAnimationState,
                 gauge: viewModel.emotionGauge,
-                layoutWidth: contentWidth
+                layoutWidth: metrics.portraitContentWidth
             )
-            .frame(height: characterHeight)
+            .frame(height: metrics.portraitCharacterHeight)
             .frame(maxWidth: .infinity)
-            .padding(.top, isCompactHeight ? 8 : 24)
+            .padding(.top, metrics.isCompactHeight ? 8 : 24)
 
-            // 感情ゲージ
             EmotionGaugeView(
                 gauge: viewModel.emotionGauge,
                 state: viewModel.emotionState,
-                layoutWidth: contentWidth,
+                layoutWidth: metrics.portraitContentWidth,
                 pulseTrigger: viewModel.gaugePulseTrigger,
                 pulseStrength: viewModel.gaugePulseStrength
             )
             .frame(maxWidth: .infinity)
-            .padding(.top, isCompactHeight ? 8 : 16)
+            .padding(.top, metrics.isCompactHeight ? 8 : 16)
 
-            // コントロールパネル
             ControlPanelView(
                 horizontalPadding: 0,
-                sideButtonWidth: sideButtonWidth,
-                layoutWidth: contentWidth
+                layoutWidth: metrics.portraitContentWidth
             )
             .frame(maxWidth: .infinity)
-            .padding(.top, isCompactHeight ? 6 : 12)
+            .padding(.top, metrics.isCompactHeight ? 6 : 12)
         }
-        .frame(maxWidth: contentWidth, alignment: .top)
-        .frame(maxWidth: .infinity, alignment: .top)
-        .padding(.leading, leadingPadding)
-        .padding(.trailing, trailingPadding)
+        .frame(width: metrics.portraitContentWidth, alignment: .topLeading)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func landscapeContent(
-        leadingPadding: CGFloat,
-        trailingPadding: CGFloat,
-        leftColumnWidth: CGFloat,
-        rightColumnWidth: CGFloat,
-        columnsWidth: CGFloat,
-        spacing: CGFloat,
-        characterHeight: CGFloat,
-        characterScaleBoost: CGFloat,
-        sideButtonWidth: CGFloat,
-        language: AppLanguage
-    ) -> some View {
-        HStack(alignment: .top, spacing: spacing) {
+    private func landscapeContent(metrics: MainLayoutMetrics, language: AppLanguage) -> some View {
+        HStack(alignment: .top, spacing: metrics.landscapeSpacing) {
             VStack(spacing: 12) {
-                headerBar(layoutWidth: leftColumnWidth, language: language)
+                headerBar(layoutWidth: metrics.landscapeLeftColumnWidth, language: language)
+
                 CharacterView(
                     character: viewModel.currentCharacter,
                     state: viewModel.emotionState,
                     animationState: viewModel.characterAnimationState,
                     gauge: viewModel.emotionGauge,
-                    layoutWidth: leftColumnWidth,
-                    scaleBoost: characterScaleBoost
+                    layoutWidth: metrics.landscapeLeftColumnWidth,
+                    scaleBoost: metrics.landscapeCharacterScaleBoost
                 )
-                .frame(height: characterHeight)
+                .frame(height: metrics.landscapeCharacterHeight)
             }
-            .frame(width: leftColumnWidth, alignment: .top)
+            .frame(width: metrics.landscapeLeftColumnWidth, alignment: .topLeading)
 
             VStack(spacing: 12) {
                 EmotionGaugeView(
                     gauge: viewModel.emotionGauge,
                     state: viewModel.emotionState,
-                    layoutWidth: rightColumnWidth,
+                    layoutWidth: metrics.landscapeRightColumnWidth,
                     pulseTrigger: viewModel.gaugePulseTrigger,
                     pulseStrength: viewModel.gaugePulseStrength
                 )
+
                 ControlPanelView(
                     horizontalPadding: 0,
-                    sideButtonWidth: sideButtonWidth,
-                    layoutWidth: rightColumnWidth
+                    layoutWidth: metrics.landscapeRightColumnWidth
                 )
             }
-            .frame(width: rightColumnWidth, alignment: .top)
+            .frame(width: metrics.landscapeRightColumnWidth, alignment: .topLeading)
         }
-        .frame(maxWidth: columnsWidth)
-        .frame(maxWidth: .infinity)
-        .padding(.leading, leadingPadding)
-        .padding(.trailing, trailingPadding)
+        .frame(width: metrics.landscapeContainerWidth, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, 8)
     }
 
     // MARK: - Header
 
+    @ViewBuilder
     private func headerBar(layoutWidth: CGFloat, language: AppLanguage) -> some View {
         let isCompactWidth = layoutWidth < 330
-        let isMediumWidth = layoutWidth < 390
-        let characterMaxWidth = max(
-            min(layoutWidth * (isCompactWidth ? 0.26 : (isMediumWidth ? 0.30 : 0.36)), 170),
-            52
-        )
+        let shouldStack = layoutWidth < 360
+        let characterMaxWidth = max(min(layoutWidth * (shouldStack ? 0.58 : 0.34), 190), 72)
 
-        return VStack(spacing: 8) {
-            HStack(spacing: isCompactWidth ? 8 : 12) {
-                // アプリロゴ
-                HStack(spacing: 6) {
-                    Image("BrandIcon")
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 30, height: 30)
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .stroke(Color.white.opacity(0.2), lineWidth: 0.8)
-                        )
-                    Text("Synca")
-                        .font(.system(size: 20, weight: .black, design: .rounded))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+        if shouldStack {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 10) {
+                    appLogo
+                    Spacer(minLength: 0)
+                    if viewModel.isRunning {
+                        liveIndicator(showText: !isCompactWidth, language: language)
+                    }
                 }
-                .layoutPriority(1)
 
-                Spacer(minLength: isCompactWidth ? 4 : 8)
+                currentCharacterBadge(maxWidth: characterMaxWidth)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            HStack(spacing: 10) {
+                appLogo
+                    .layoutPriority(1)
 
-                // 現在キャラ名
-                HStack(spacing: 6) {
-                    Circle()
-                        .fill(viewModel.currentCharacter.accentColor)
-                        .frame(width: 8, height: 8)
-                        .shadow(color: viewModel.currentCharacter.accentColor, radius: 4)
-                    Text(viewModel.currentCharacter.name)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.8))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                        .layoutPriority(1)
-                        .frame(maxWidth: characterMaxWidth, alignment: .leading)
-                }
-                .padding(.horizontal, isCompactWidth ? 10 : 12)
-                .padding(.vertical, 6)
-                .glassCard(cornerRadius: 12)
+                Spacer(minLength: 8)
 
-                // 横幅に余裕がある場合のみ同列でLIVE表示
-                if viewModel.isRunning && !isMediumWidth {
+                currentCharacterBadge(maxWidth: characterMaxWidth)
+
+                if viewModel.isRunning {
                     liveIndicator(showText: true, language: language)
                         .transition(.scale.combined(with: .opacity))
                 }
             }
-
-            // 中〜狭幅ではLIVEを2行目に逃して見切れを防止
-            if viewModel.isRunning && isMediumWidth {
-                HStack {
-                    Spacer()
-                    liveIndicator(showText: !isCompactWidth, language: language)
-                        .transition(.opacity.combined(with: .move(edge: .trailing)))
-                }
-            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .animation(.spring(response: 0.3), value: viewModel.isRunning)
+    }
+
+    private var appLogo: some View {
+        HStack(spacing: 6) {
+            Image("BrandIcon")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 30, height: 30)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .stroke(Color.white.opacity(0.2), lineWidth: 0.8)
+                )
+
+            Text("Synca")
+                .font(.system(size: 20, weight: .black, design: .rounded))
+                .foregroundColor(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+    }
+
+    private func currentCharacterBadge(maxWidth: CGFloat) -> some View {
+        HStack(spacing: 6) {
+            Circle()
+                .fill(viewModel.currentCharacter.accentColor)
+                .frame(width: 8, height: 8)
+                .shadow(color: viewModel.currentCharacter.accentColor, radius: 4)
+
+            Text(viewModel.currentCharacter.name)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.white.opacity(0.8))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(maxWidth: maxWidth, alignment: .leading)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .glassCard(cornerRadius: 12)
     }
 
     private func liveIndicator(showText: Bool, language: AppLanguage) -> some View {
@@ -334,6 +258,72 @@ struct MainView: View {
         .padding(.horizontal, showText ? 10 : 8)
         .padding(.vertical, 6)
         .glassCard(cornerRadius: 10)
+    }
+}
+
+private struct MainLayoutMetrics {
+    let size: CGSize
+    let safeInsets: EdgeInsets
+    let isLandscape: Bool
+    let isCompactHeight: Bool
+    let safeWidth: CGFloat
+    let safeHeight: CGFloat
+    let baseHorizontalPadding: CGFloat
+    let leftBias: CGFloat
+    let usableWidth: CGFloat
+    let portraitContentWidth: CGFloat
+    let portraitCharacterHeight: CGFloat
+    let landscapeContainerWidth: CGFloat
+    let landscapeSpacing: CGFloat
+    let landscapeLeftColumnWidth: CGFloat
+    let landscapeRightColumnWidth: CGFloat
+    let landscapeCharacterHeight: CGFloat
+    let landscapeCharacterScaleBoost: CGFloat
+    let topInset: CGFloat
+    let bottomInset: CGFloat
+    let minContentHeight: CGFloat
+
+    init(proxy: GeometryProxy) {
+        size = proxy.size
+        safeInsets = proxy.safeAreaInsets
+        isLandscape = proxy.size.width > proxy.size.height
+        isCompactHeight = proxy.size.height < 760
+        safeWidth = max(proxy.size.width - proxy.safeAreaInsets.leading - proxy.safeAreaInsets.trailing, 0)
+        safeHeight = max(proxy.size.height - proxy.safeAreaInsets.top - proxy.safeAreaInsets.bottom, 0)
+        baseHorizontalPadding = safeWidth < 360 ? 10 : (safeWidth < 420 ? 12 : 16)
+        let requestedBias: CGFloat = isLandscape ? 12 : 20
+        leftBias = min(requestedBias, max(safeWidth * 0.08, 0))
+        usableWidth = max(safeWidth - baseHorizontalPadding * 2 - leftBias, 0)
+        portraitContentWidth = safeWidth > 700 ? min(usableWidth, 400) : min(usableWidth, 440)
+        portraitCharacterHeight = isCompactHeight
+            ? (safeWidth < 360 ? 200 : 220)
+            : (safeWidth < 360 ? 250 : 280)
+        landscapeSpacing = safeWidth < 780 ? 10 : 14
+        landscapeContainerWidth = safeWidth > 1000 ? min(usableWidth, 940) : min(usableWidth, 860)
+
+        let totalColumnWidth = max(landscapeContainerWidth - landscapeSpacing, 0)
+        let minColumnWidth: CGFloat = 240
+        let targetLeftRatio: CGFloat = safeWidth >= 900 ? 0.6 : 0.56
+        if totalColumnWidth >= minColumnWidth * 2 {
+            let raw = totalColumnWidth * targetLeftRatio
+            landscapeLeftColumnWidth = min(max(raw, minColumnWidth), totalColumnWidth - minColumnWidth)
+        } else {
+            landscapeLeftColumnWidth = totalColumnWidth * 0.52
+        }
+        landscapeRightColumnWidth = max(totalColumnWidth - landscapeLeftColumnWidth, 0)
+        landscapeCharacterHeight = max(min(proxy.size.height * 0.66, 430), 220)
+        landscapeCharacterScaleBoost = safeWidth >= 900 ? 1.2 : (safeWidth >= 760 ? 1.16 : 1.1)
+        topInset = max(proxy.safeAreaInsets.top, 8)
+        bottomInset = max(proxy.safeAreaInsets.bottom, 12)
+        minContentHeight = max(safeHeight, 0)
+    }
+
+    var showsScrollIndicators: Bool {
+        isCompactHeight || isLandscape
+    }
+
+    var useLandscapeColumns: Bool {
+        isLandscape && landscapeRightColumnWidth >= 260
     }
 }
 

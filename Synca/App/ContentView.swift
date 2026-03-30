@@ -109,50 +109,59 @@ private struct HomeEntryView: View {
     }
 
     var body: some View {
-        ZStack {
-            LinearGradient(
-                colors: [Color(hex: "070715"), Color(hex: "171732"), Color(hex: "090919")],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+        GeometryReader { proxy in
+            let safeWidth = max(proxy.size.width - proxy.safeAreaInsets.leading - proxy.safeAreaInsets.trailing, 0)
+            let horizontalPadding: CGFloat = safeWidth < 360 ? 16 : 24
+            let contentWidth = min(max(safeWidth - horizontalPadding * 2, 0), 320)
 
-            VStack(spacing: 20) {
-                Image("BrandIcon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 126, height: 126)
-                    .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
-                    .shadow(color: Color(hex: "A78BFA").opacity(0.35), radius: 20, y: 8)
+            ZStack(alignment: .topLeading) {
+                LinearGradient(
+                    colors: [Color(hex: "070715"), Color(hex: "171732"), Color(hex: "090919")],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
 
-                Text("Synca")
-                    .font(.system(size: 42, weight: .black, design: .rounded))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [Color.white, Color(hex: "D8B4FE")],
-                            startPoint: .top,
-                            endPoint: .bottom
+                VStack(spacing: 20) {
+                    Image("BrandIcon")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 126, height: 126)
+                        .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+                        .shadow(color: Color(hex: "A78BFA").opacity(0.35), radius: 20, y: 8)
+
+                    Text("Synca")
+                        .font(.system(size: 42, weight: .black, design: .rounded))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [Color.white, Color(hex: "D8B4FE")],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
                         )
-                    )
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
-                Text(tapHint)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.92))
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .glassCard(cornerRadius: 14)
-                    .scaleEffect(pulse ? 1.03 : 0.97)
-                    .opacity(pulse ? 1.0 : 0.82)
-                    .animation(.easeInOut(duration: 0.95).repeatForever(autoreverses: true), value: pulse)
+                    Text(tapHint)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.92))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .glassCard(cornerRadius: 14)
+                        .scaleEffect(pulse ? 1.03 : 0.97)
+                        .opacity(pulse ? 1.0 : 0.82)
+                        .animation(.easeInOut(duration: 0.95).repeatForever(autoreverses: true), value: pulse)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .frame(width: contentWidth, alignment: .leading)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                .padding(.horizontal, horizontalPadding)
             }
-            .padding(.horizontal, 24)
-            .offset(x: -20)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                onTapStart()
+            }
+            .onAppear { pulse = true }
         }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            onTapStart()
-        }
-        .onAppear { pulse = true }
     }
 }
 

@@ -58,10 +58,10 @@ struct IconButton: View {
     }
 
     var body: some View {
-        let referenceWidth = width ?? 56
-        let iconSize: CGFloat = referenceWidth < 50 ? 16 : (referenceWidth < 60 ? 18 : 20)
-        let labelSize: CGFloat = referenceWidth < 50 ? 8 : (referenceWidth < 60 ? 9 : 10)
-        let buttonHeight: CGFloat = referenceWidth < 50 ? 54 : 56
+        let referenceWidth = width ?? 72
+        let iconSize: CGFloat = referenceWidth < 80 ? 18 : 20
+        let labelSize: CGFloat = referenceWidth < 80 ? 9 : 10
+        let buttonHeight: CGFloat = referenceWidth < 80 ? 54 : 56
 
         Button(action: action) {
             VStack(spacing: 4) {
@@ -70,11 +70,11 @@ struct IconButton: View {
                 Text(label)
                     .font(.system(size: labelSize, weight: .medium))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .minimumScaleFactor(0.72)
             }
             .foregroundColor(color)
             .frame(maxWidth: .infinity)
-            .frame(width: width)
+            .frame(minWidth: width, idealWidth: width, maxWidth: width ?? .infinity)
             .frame(height: buttonHeight)
             .background(
                 RoundedRectangle(cornerRadius: 14)
