@@ -321,7 +321,9 @@ private struct MainLayoutMetrics {
         let requestedBias: CGFloat = isLandscape ? 7 : 10
         leftBias = min(requestedBias, max(safeWidth * 0.08, 0))
         usableWidth = max(safeWidth - baseHorizontalPadding * 2 - leftBias, 0)
-        portraitContentWidth = safeWidth > 700 ? min(usableWidth, 400) : min(usableWidth, 440)
+        let portraitBaseWidth = safeWidth > 700 ? min(usableWidth, 400) : min(usableWidth, 440)
+        let portraitMaxWidthWithinPadding = max(safeWidth - baseHorizontalPadding * 2, 0)
+        portraitContentWidth = min(portraitBaseWidth + 5, portraitMaxWidthWithinPadding)
         portraitCharacterHeight = isCompactHeight
             ? (safeWidth < 360 ? 200 : 220)
             : (safeWidth < 360 ? 250 : 280)
