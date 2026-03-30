@@ -46,13 +46,13 @@ final class MainViewModel: ObservableObject {
     // MARK: - Tunables
     private enum GaugeTuning {
         // 感度ごとの到達目標時間:
-        // 最低(0.2) -> 30分, 1つ前(2.0) -> 1分, 最高(3.0) -> 30秒
+        // 最低(0.2) -> 30分, 1つ前(2.0) -> 30秒, 最高(3.0) -> 10秒
         static let minSensitivity: Double = 0.2
         static let preMaxSensitivity: Double = 2.0
         static let maxSensitivity: Double = 3.0
         static let minTargetDuration: TimeInterval = 30 * 60
-        static let preMaxTargetDuration: TimeInterval = 60
-        static let maxTargetDuration: TimeInterval = 30
+        static let preMaxTargetDuration: TimeInterval = 30
+        static let maxTargetDuration: TimeInterval = 10
 
         static let decayRate: Double = 0.003
         static let decayInterval: TimeInterval = 0.1

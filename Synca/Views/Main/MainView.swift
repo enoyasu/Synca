@@ -18,14 +18,12 @@ struct MainView: View {
             GeometryReader { proxy in
                 let isCompactHeight = proxy.size.height < 760
                 let width = proxy.size.width
-                let leftShift: CGFloat = 20
+                let contentLeftOffset: CGFloat = -20
                 let horizontalPadding: CGFloat = width < 360 ? 10 : (width < 420 ? 12 : 16)
-                let leadingPadding = max(horizontalPadding - leftShift, 0)
-                let trailingPadding = horizontalPadding + leftShift
                 let characterHeight: CGFloat = isCompactHeight
                     ? (width < 360 ? 200 : 220)
                     : (width < 360 ? 250 : 280)
-                let availableWidth = max(width - leadingPadding - trailingPadding, 0)
+                let availableWidth = max(width - horizontalPadding * 2, 0)
                 let contentWidth: CGFloat = width > 700 ? min(availableWidth, 400) : min(availableWidth, 440)
                 let sideButtonWidth: CGFloat = contentWidth < 300 ? 42 : (contentWidth < 340 ? 44 : (contentWidth < 380 ? 48 : 56))
                 let topInset = max(proxy.safeAreaInsets.top, 8)
@@ -84,9 +82,9 @@ struct MainView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding(.top, isCompactHeight ? 6 : 12)
                         }
-                        .padding(.leading, leadingPadding)
-                        .padding(.trailing, trailingPadding)
+                        .padding(.horizontal, horizontalPadding)
                         .padding(.top, topInset)
+                        .offset(x: contentLeftOffset)
                         .frame(minHeight: contentMinHeight, alignment: .top)
                         .padding(.bottom, bottomInset)
                     }
