@@ -291,7 +291,7 @@ private struct MainLayoutMetrics {
         safeWidth = max(proxy.size.width - proxy.safeAreaInsets.leading - proxy.safeAreaInsets.trailing, 0)
         safeHeight = max(proxy.size.height - proxy.safeAreaInsets.top - proxy.safeAreaInsets.bottom, 0)
         baseHorizontalPadding = safeWidth < 360 ? 10 : (safeWidth < 420 ? 12 : 16)
-        let requestedBias: CGFloat = isLandscape ? 7 : 15
+        let requestedBias: CGFloat = isLandscape ? 7 : 10
         leftBias = min(requestedBias, max(safeWidth * 0.08, 0))
         usableWidth = max(safeWidth - baseHorizontalPadding * 2 - leftBias, 0)
         portraitContentWidth = safeWidth > 700 ? min(usableWidth, 400) : min(usableWidth, 440)

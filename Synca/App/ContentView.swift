@@ -139,19 +139,20 @@ private struct HomeEntryView: View {
                                 endPoint: .bottom
                             )
                         )
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
                     Text(tapHint)
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white.opacity(0.92))
-                        .multilineTextAlignment(.center)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
                         .glassCard(cornerRadius: 14)
                         .scaleEffect(pulse ? 1.03 : 0.97)
                         .opacity(pulse ? 1.0 : 0.82)
                         .animation(.easeInOut(duration: 0.95).repeatForever(autoreverses: true), value: pulse)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(width: contentWidth)
+                .frame(width: contentWidth, alignment: .leading)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 .padding(.horizontal, horizontalPadding)
             }
