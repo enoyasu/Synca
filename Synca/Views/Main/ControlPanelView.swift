@@ -30,7 +30,7 @@ struct ControlPanelView: View {
     }
 
     private var sectionSpacing: CGFloat {
-        compactMode ? 8 : 12
+        10
     }
 
     var body: some View {

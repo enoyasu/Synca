@@ -96,7 +96,7 @@ struct MainView: View {
     }
 
     private func portraitContent(metrics: MainLayoutMetrics, language: AppLanguage) -> some View {
-        let panelSpacing: CGFloat = metrics.isCompactHeight ? 8 : 12
+        let panelSpacing: CGFloat = 10
 
         return VStack(spacing: 0) {
             headerBar(layoutWidth: metrics.portraitContentWidth, language: language)
@@ -139,7 +139,7 @@ struct MainView: View {
         GeometryReader { geo in
             let availableHeight = max(geo.size.height - 8, 0)
             let headerEstimatedHeight: CGFloat = metrics.landscapeLeftColumnWidth < 360 ? 78 : 52
-            let sectionSpacing: CGFloat = 8
+            let sectionSpacing: CGFloat = 10
             let leftSpacing: CGFloat = sectionSpacing
             let characterHeight = max(
                 min(metrics.landscapeCharacterHeight, availableHeight - headerEstimatedHeight - leftSpacing),
@@ -206,7 +206,9 @@ struct MainView: View {
                     appLogo
                     Spacer(minLength: 0)
                     if viewModel.isRunning {
-                        liveIndicator(showText: !isCompactWidth, language: language)
+                        liveIndicator(showText: true, language: language)
+                            .fixedSize(horizontal: true, vertical: false)
+                            .layoutPriority(2)
                     }
                 }
 
@@ -224,6 +226,8 @@ struct MainView: View {
 
                 if viewModel.isRunning {
                     liveIndicator(showText: true, language: language)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .layoutPriority(2)
                         .transition(.scale.combined(with: .opacity))
                 }
             }
@@ -281,6 +285,7 @@ struct MainView: View {
                     .font(.system(size: 11, weight: .bold))
                     .foregroundColor(Color(hex: "10B981"))
                     .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
         }
         .padding(.horizontal, showText ? 10 : 8)
