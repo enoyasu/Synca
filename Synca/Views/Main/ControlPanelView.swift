@@ -19,34 +19,30 @@ struct ControlPanelView: View {
     }
 
     var body: some View {
+        let isNarrowLayout = layoutWidth < 340
+
         VStack(spacing: 16) {
             // セリフ吹き出し
             dialogueBubble
 
             // メインコントロール
-            HStack(spacing: sideButtonWidth < 60 ? 8 : 12) {
-                // キャラクター選択
-                IconButton(
-                    icon: "person.2.fill",
-                    label: L10n.text(.tabCharacter, language: language),
-                    color: Color(hex: "A78BFA"),
-                    width: sideButtonWidth
-                ) {
-                    viewModel.presentCharacterSelection()
+            if isNarrowLayout {
+                VStack(spacing: 8) {
+                    startStopButton
+
+                    HStack(spacing: 8) {
+                        characterButton(width: nil)
+                            .frame(maxWidth: .infinity)
+                        settingsButton(width: nil)
+                            .frame(maxWidth: .infinity)
+                    }
                 }
-
-                // START / STOP メインボタン
-                startStopButton
-                    .frame(maxWidth: .infinity)
-
-                // 設定
-                IconButton(
-                    icon: "slider.horizontal.3",
-                    label: L10n.text(.tabSettings, language: language),
-                    color: Color(hex: "60A5FA"),
-                    width: sideButtonWidth
-                ) {
-                    viewModel.presentSettings()
+            } else {
+                HStack(spacing: sideButtonWidth < 60 ? 8 : 12) {
+                    characterButton(width: sideButtonWidth)
+                    startStopButton
+                        .frame(maxWidth: .infinity)
+                    settingsButton(width: sideButtonWidth)
                 }
             }
         }
@@ -59,7 +55,7 @@ struct ControlPanelView: View {
     private var dialogueBubble: some View {
         let isCompactWidth = layoutWidth < 330
         let isMediumWidth = layoutWidth < 400
-        let dialogueLineLimit = isCompactWidth ? 5 : (isMediumWidth ? 4 : 3)
+        let dialogueLineLimit = isCompactWidth ? 6 : (isMediumWidth ? 4 : 3)
         let iconSize: CGFloat = isCompactWidth ? 30 : 32
 
         return HStack(spacing: 12) {
@@ -148,6 +144,30 @@ struct ControlPanelView: View {
         }
         .buttonStyle(ScaleButtonStyle())
         .animation(.spring(response: 0.3), value: viewModel.isRunning)
+    }
+
+    @ViewBuilder
+    private func characterButton(width: CGFloat?) -> some View {
+        IconButton(
+            icon: "person.2.fill",
+            label: L10n.text(.tabCharacter, language: language),
+            color: Color(hex: "A78BFA"),
+            width: width
+        ) {
+            viewModel.presentCharacterSelection()
+        }
+    }
+
+    @ViewBuilder
+    private func settingsButton(width: CGFloat?) -> some View {
+        IconButton(
+            icon: "slider.horizontal.3",
+            label: L10n.text(.tabSettings, language: language),
+            color: Color(hex: "60A5FA"),
+            width: width
+        ) {
+            viewModel.presentSettings()
+        }
     }
 
     private var startStopLabel: String {

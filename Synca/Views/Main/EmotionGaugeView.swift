@@ -196,8 +196,9 @@ struct EmotionGaugeView: View {
         return Text(label)
             .font(.system(size: isCompactWidth ? 9 : 10, weight: isActive ? .bold : .regular))
             .foregroundColor(isActive ? color : .white.opacity(0.35))
-            .lineLimit(1)
-            .minimumScaleFactor(0.65)
+            .lineLimit(2)
+            .minimumScaleFactor(0.7)
+            .multilineTextAlignment(.center)
             .padding(.horizontal, isCompactWidth ? 4 : 8)
             .padding(.vertical, 3)
             .background(

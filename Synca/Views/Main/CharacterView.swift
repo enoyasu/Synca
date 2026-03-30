@@ -6,6 +6,7 @@ struct CharacterView: View {
     let state: EmotionState
     let animationState: CharacterAnimationState
     let gauge: Double
+    let layoutWidth: CGFloat
 
     // MARK: - Animation State
     @State private var isBlinking = false
@@ -15,7 +16,23 @@ struct CharacterView: View {
     @State private var particleOpacity: Double = 0
     @State private var starRotation: Double = 0
 
+    init(
+        character: Character,
+        state: EmotionState,
+        animationState: CharacterAnimationState,
+        gauge: Double,
+        layoutWidth: CGFloat = 320
+    ) {
+        self.character = character
+        self.state = state
+        self.animationState = animationState
+        self.gauge = gauge
+        self.layoutWidth = layoutWidth
+    }
+
     var body: some View {
+        let characterScale = min(max(layoutWidth / 320, 0.76), 1.0)
+
         ZStack {
             // 背景グロー
             Circle()
@@ -44,6 +61,8 @@ struct CharacterView: View {
                 .offset(y: floatY)
                 .scaleEffect(bodyScale)
         }
+        .scaleEffect(characterScale)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             startFloatAnimation()
             startBlinkCycle()

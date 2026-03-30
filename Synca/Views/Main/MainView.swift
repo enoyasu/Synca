@@ -15,70 +15,77 @@ struct MainView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            // ─── 背景 ───
-            backgroundLayer
-
             GeometryReader { proxy in
                 let isCompactHeight = proxy.size.height < 760
                 let width = proxy.size.width
                 let horizontalPadding: CGFloat = width < 360 ? 10 : (width < 420 ? 12 : 16)
-                let characterHeight: CGFloat = isCompactHeight ? 220 : 280
+                let characterHeight: CGFloat = isCompactHeight
+                    ? (width < 360 ? 200 : 220)
+                    : (width < 360 ? 250 : 280)
                 let availableWidth = max(width - horizontalPadding * 2, 0)
                 let contentWidth: CGFloat = width > 700 ? min(availableWidth, 400) : min(availableWidth, 440)
-                let sideButtonWidth: CGFloat = contentWidth < 320 ? 44 : (contentWidth < 360 ? 48 : (contentWidth < 420 ? 52 : 56))
+                let sideButtonWidth: CGFloat = contentWidth < 300 ? 42 : (contentWidth < 340 ? 44 : (contentWidth < 380 ? 48 : 56))
                 let topInset = max(proxy.safeAreaInsets.top, 8)
                 let bottomInset = max(proxy.safeAreaInsets.bottom, 12)
                 let contentMinHeight = max(proxy.size.height - topInset - bottomInset, 0)
 
-                ScrollView(.vertical, showsIndicators: isCompactHeight) {
-                    VStack(spacing: 0) {
-                        // 上部：AdMobバナー
-                        AdBannerView(isHidden: viewModel.isPremium)
+                ZStack(alignment: .top) {
+                    backgroundLayer(
+                        containerWidth: width,
+                        containerHeight: proxy.size.height
+                    )
 
-                        // ヘッダー
-                        headerBar(layoutWidth: contentWidth, language: language)
+                    ScrollView(.vertical, showsIndicators: isCompactHeight) {
+                        VStack(spacing: 0) {
+                            // 上部：AdMobバナー
+                            AdBannerView(isHidden: viewModel.isPremium)
+
+                            // ヘッダー
+                            headerBar(layoutWidth: contentWidth, language: language)
+                                .frame(maxWidth: contentWidth)
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, 8)
+
+                            // キャラクター
+                            CharacterView(
+                                character: viewModel.currentCharacter,
+                                state: viewModel.emotionState,
+                                animationState: viewModel.characterAnimationState,
+                                gauge: viewModel.emotionGauge,
+                                layoutWidth: contentWidth
+                            )
+                            .frame(height: characterHeight)
                             .frame(maxWidth: contentWidth)
                             .frame(maxWidth: .infinity)
-                            .padding(.top, 8)
+                            .padding(.top, isCompactHeight ? 8 : 24)
 
-                        // キャラクター
-                        CharacterView(
-                            character: viewModel.currentCharacter,
-                            state: viewModel.emotionState,
-                            animationState: viewModel.characterAnimationState,
-                            gauge: viewModel.emotionGauge
-                        )
-                        .frame(height: characterHeight)
-                        .frame(maxWidth: contentWidth)
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, isCompactHeight ? 8 : 24)
-
-                        // 感情ゲージ
-                        EmotionGaugeView(
-                            gauge: viewModel.emotionGauge,
-                            state: viewModel.emotionState,
-                            layoutWidth: contentWidth,
-                            pulseTrigger: viewModel.gaugePulseTrigger,
-                            pulseStrength: viewModel.gaugePulseStrength
-                        )
-                        .frame(maxWidth: contentWidth)
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, isCompactHeight ? 8 : 16)
-
-                        // コントロールパネル
-                        ControlPanelView(
-                            horizontalPadding: 0,
-                            sideButtonWidth: sideButtonWidth,
-                            layoutWidth: contentWidth
-                        )
+                            // 感情ゲージ
+                            EmotionGaugeView(
+                                gauge: viewModel.emotionGauge,
+                                state: viewModel.emotionState,
+                                layoutWidth: contentWidth,
+                                pulseTrigger: viewModel.gaugePulseTrigger,
+                                pulseStrength: viewModel.gaugePulseStrength
+                            )
                             .frame(maxWidth: contentWidth)
                             .frame(maxWidth: .infinity)
-                            .padding(.top, isCompactHeight ? 6 : 12)
+                            .padding(.top, isCompactHeight ? 8 : 16)
+
+                            // コントロールパネル
+                            ControlPanelView(
+                                horizontalPadding: 0,
+                                sideButtonWidth: sideButtonWidth,
+                                layoutWidth: contentWidth
+                            )
+                                .frame(maxWidth: contentWidth)
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, isCompactHeight ? 6 : 12)
+                        }
+                        .padding(.horizontal, horizontalPadding)
+                        .padding(.top, topInset)
+                        .frame(minHeight: contentMinHeight, alignment: .top)
+                        .padding(.bottom, bottomInset)
                     }
-                    .padding(.horizontal, horizontalPadding)
-                    .padding(.top, topInset)
-                    .frame(minHeight: contentMinHeight, alignment: .top)
-                    .padding(.bottom, bottomInset)
                 }
             }
         }
@@ -102,25 +109,29 @@ struct MainView: View {
 
     // MARK: - Background
 
-    private var backgroundLayer: some View {
-        ZStack {
+    private func backgroundLayer(containerWidth: CGFloat, containerHeight: CGFloat) -> some View {
+        let orbBase = max(containerWidth, containerHeight)
+        let primarySize = min(max(orbBase * 0.88, 280), 520)
+        let secondarySize = min(max(orbBase * 0.7, 220), 430)
+
+        return ZStack {
             // ベースカラー
             Color(hex: "0A0A1A")
 
             // ダイナミックグラデーション球
             Circle()
                 .fill(viewModel.emotionState.primaryColor.opacity(0.12))
-                .frame(width: 500, height: 500)
+                .frame(width: primarySize, height: primarySize)
                 .blur(radius: 80)
-                .offset(x: -100, y: -200)
+                .offset(x: -containerWidth * 0.28, y: -containerHeight * 0.28)
                 .rotationEffect(.degrees(bgRotation))
                 .scaleEffect(bgScale)
 
             Circle()
                 .fill(viewModel.emotionState.secondaryColor.opacity(0.08))
-                .frame(width: 400, height: 400)
+                .frame(width: secondarySize, height: secondarySize)
                 .blur(radius: 60)
-                .offset(x: 120, y: 100)
+                .offset(x: containerWidth * 0.32, y: containerHeight * 0.14)
                 .rotationEffect(.degrees(-bgRotation * 0.7))
         }
         .ignoresSafeArea()
@@ -132,7 +143,10 @@ struct MainView: View {
     private func headerBar(layoutWidth: CGFloat, language: AppLanguage) -> some View {
         let isCompactWidth = layoutWidth < 330
         let isMediumWidth = layoutWidth < 390
-        let characterMaxWidth = max(min(layoutWidth * (isMediumWidth ? 0.30 : 0.36), 170), 64)
+        let characterMaxWidth = max(
+            min(layoutWidth * (isCompactWidth ? 0.26 : (isMediumWidth ? 0.30 : 0.36)), 170),
+            52
+        )
 
         return VStack(spacing: 8) {
             HStack(spacing: isCompactWidth ? 8 : 12) {

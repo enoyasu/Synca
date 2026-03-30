@@ -64,7 +64,7 @@ struct CharacterSelectionView: View {
 
                             // 広告削除オファー
                             if !viewModel.isPremium {
-                                removeAdsCard(isCompactWidth: isCompactWidth)
+                                removeAdsCard
                                     .frame(maxWidth: contentWidth)
                                     .frame(maxWidth: .infinity)
                             }
@@ -125,77 +125,55 @@ struct CharacterSelectionView: View {
 
     // MARK: - Remove Ads Card
 
-    @ViewBuilder
-    private func removeAdsCard(isCompactWidth: Bool) -> some View {
-        if isCompactWidth {
+    private var removeAdsCard: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 14) {
+                removeAdsIcon
+                removeAdsText
+                purchaseButton(expandsToFill: false)
+            }
+            .padding(14)
+            .glassCard(cornerRadius: 16)
+
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 10) {
                     removeAdsIcon
                     removeAdsText
                 }
-
-                Button {
-                    Task {
-                        await viewModel.purchaseRemoveAds()
-                    }
-                } label: {
-                    Text(L10n.text(.purchase, language: language))
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [Color(hex: "F59E0B"), Color(hex: "D97706")]),
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                        )
-                }
-                .buttonStyle(ScaleButtonStyle())
-            }
-            .padding(14)
-            .glassCard(cornerRadius: 16)
-        } else {
-            HStack(spacing: 14) {
-                removeAdsIcon
-                removeAdsText
-
-                Spacer()
-
-                Button {
-                    Task {
-                        await viewModel.purchaseRemoveAds()
-                    }
-                } label: {
-                    Text(L10n.text(.purchase, language: language))
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [Color(hex: "F59E0B"), Color(hex: "D97706")]),
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                        )
-                }
-                .buttonStyle(ScaleButtonStyle())
+                purchaseButton(expandsToFill: true)
             }
             .padding(14)
             .glassCard(cornerRadius: 16)
         }
+    }
+
+    @ViewBuilder
+    private func purchaseButton(expandsToFill: Bool) -> some View {
+        Button {
+            Task {
+                await viewModel.purchaseRemoveAds()
+            }
+        } label: {
+            Text(L10n.text(.purchase, language: language))
+                .font(.system(size: 13, weight: .bold))
+                .foregroundColor(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .frame(maxWidth: expandsToFill ? .infinity : nil)
+                .padding(.horizontal, expandsToFill ? 0 : 16)
+                .padding(.vertical, expandsToFill ? 10 : 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color(hex: "F59E0B"), Color(hex: "D97706")]),
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                )
+        }
+        .buttonStyle(ScaleButtonStyle())
     }
 
     private var removeAdsIcon: some View {
