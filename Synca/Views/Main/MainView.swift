@@ -18,11 +18,14 @@ struct MainView: View {
             GeometryReader { proxy in
                 let isCompactHeight = proxy.size.height < 760
                 let width = proxy.size.width
+                let leftShift: CGFloat = 20
                 let horizontalPadding: CGFloat = width < 360 ? 10 : (width < 420 ? 12 : 16)
+                let leadingPadding = max(horizontalPadding - leftShift, 0)
+                let trailingPadding = horizontalPadding + leftShift
                 let characterHeight: CGFloat = isCompactHeight
                     ? (width < 360 ? 200 : 220)
                     : (width < 360 ? 250 : 280)
-                let availableWidth = max(width - horizontalPadding * 2, 0)
+                let availableWidth = max(width - leadingPadding - trailingPadding, 0)
                 let contentWidth: CGFloat = width > 700 ? min(availableWidth, 400) : min(availableWidth, 440)
                 let sideButtonWidth: CGFloat = contentWidth < 300 ? 42 : (contentWidth < 340 ? 44 : (contentWidth < 380 ? 48 : 56))
                 let topInset = max(proxy.safeAreaInsets.top, 8)
@@ -81,7 +84,8 @@ struct MainView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding(.top, isCompactHeight ? 6 : 12)
                         }
-                        .padding(.horizontal, horizontalPadding)
+                        .padding(.leading, leadingPadding)
+                        .padding(.trailing, trailingPadding)
                         .padding(.top, topInset)
                         .frame(minHeight: contentMinHeight, alignment: .top)
                         .padding(.bottom, bottomInset)
@@ -143,7 +147,6 @@ struct MainView: View {
     private func headerBar(layoutWidth: CGFloat, language: AppLanguage) -> some View {
         let isCompactWidth = layoutWidth < 330
         let isMediumWidth = layoutWidth < 390
-        let logoOffsetX: CGFloat = -20
         let characterMaxWidth = max(
             min(layoutWidth * (isCompactWidth ? 0.26 : (isMediumWidth ? 0.30 : 0.36)), 170),
             52
@@ -168,7 +171,6 @@ struct MainView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
-                .offset(x: logoOffsetX)
                 .layoutPriority(1)
 
                 Spacer(minLength: isCompactWidth ? 4 : 8)
