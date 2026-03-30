@@ -29,13 +29,17 @@ struct ControlPanelView: View {
         return min(max(layoutWidth * 0.22, 72), 96)
     }
 
+    private var sectionSpacing: CGFloat {
+        compactMode ? 8 : 12
+    }
+
     var body: some View {
-        VStack(spacing: compactMode ? 10 : 16) {
+        VStack(spacing: sectionSpacing) {
             dialogueBubble
             controlButtons
         }
         .padding(.horizontal, horizontalPadding)
-        .padding(.bottom, compactMode ? 4 : 8)
+        .padding(.bottom, compactMode ? 0 : 8)
     }
 
     @ViewBuilder

@@ -139,13 +139,14 @@ struct MainView: View {
         GeometryReader { geo in
             let availableHeight = max(geo.size.height - 8, 0)
             let headerEstimatedHeight: CGFloat = metrics.landscapeLeftColumnWidth < 360 ? 78 : 52
-            let leftSpacing: CGFloat = 6
+            let sectionSpacing: CGFloat = 8
+            let leftSpacing: CGFloat = sectionSpacing
             let characterHeight = max(
                 min(metrics.landscapeCharacterHeight, availableHeight - headerEstimatedHeight - leftSpacing),
                 160
             )
 
-            let rightSpacing: CGFloat = 6
+            let rightSpacing: CGFloat = sectionSpacing
             let gaugeHeight = max(min(availableHeight * 0.38, 168), 100)
             let controlHeight = max(availableHeight - gaugeHeight - rightSpacing, 116)
 
@@ -343,7 +344,7 @@ private struct MainLayoutMetrics {
         landscapeCharacterHeight = max(min(proxy.size.height * 0.54, 330), 190)
         landscapeCharacterScaleBoost = safeWidth >= 900 ? 1.2 : (safeWidth >= 760 ? 1.16 : 1.1)
         topInset = max(proxy.safeAreaInsets.top, 8)
-        bottomInset = max(proxy.safeAreaInsets.bottom, 12)
+        bottomInset = isLandscape ? max(proxy.safeAreaInsets.bottom, 4) : max(proxy.safeAreaInsets.bottom, 12)
         minContentHeight = max(safeHeight, 0)
     }
 
