@@ -7,6 +7,7 @@ struct EmotionGaugeView: View {
     let layoutWidth: CGFloat
     let pulseTrigger: Int
     let pulseStrength: Double
+    let compactMode: Bool
 
     @AppStorage(AppPreferenceKey.appLanguage) private var appLanguageRaw = AppLanguage.japanese.rawValue
     @State private var animatedGauge: Double = 0
@@ -22,13 +23,15 @@ struct EmotionGaugeView: View {
         state: EmotionState,
         layoutWidth: CGFloat = 360,
         pulseTrigger: Int = 0,
-        pulseStrength: Double = 0.0
+        pulseStrength: Double = 0.0,
+        compactMode: Bool = false
     ) {
         self.gauge = gauge
         self.state = state
         self.layoutWidth = layoutWidth
         self.pulseTrigger = pulseTrigger
         self.pulseStrength = pulseStrength
+        self.compactMode = compactMode
     }
 
     private var language: AppLanguage {
@@ -36,10 +39,11 @@ struct EmotionGaugeView: View {
     }
 
     var body: some View {
-        let isCompactWidth = layoutWidth < 330
+        let isCompactWidth = layoutWidth < 330 || compactMode
         let isMediumWidth = layoutWidth < 390
+        let contentSpacing: CGFloat = compactMode ? 8 : 10
 
-        VStack(spacing: 10) {
+        VStack(spacing: contentSpacing) {
             // ラベル行
             HStack {
                 HStack(spacing: 6) {
@@ -59,7 +63,7 @@ struct EmotionGaugeView: View {
                 Spacer()
 
                 Text("\(Int(gauge))")
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(.system(size: compactMode ? 20 : 22, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
                     .contentTransition(.numericText())
                     .animation(.spring(response: 0.3), value: Int(gauge))
@@ -172,7 +176,7 @@ struct EmotionGaugeView: View {
             .padding(.horizontal, 4)
         }
         .padding(.horizontal, isCompactWidth ? 12 : (isMediumWidth ? 14 : 18))
-        .padding(.vertical, 16)
+        .padding(.vertical, compactMode ? 10 : 16)
         .glassCard()
         .onAppear {
             animatedGauge = gauge
@@ -194,13 +198,13 @@ struct EmotionGaugeView: View {
     ) -> some View {
         let isActive = state == EmotionState(gauge: (range.lowerBound + range.upperBound) / 2)
         return Text(label)
-            .font(.system(size: isCompactWidth ? 9 : 10, weight: isActive ? .bold : .regular))
+            .font(.system(size: compactMode ? 8.5 : (isCompactWidth ? 9 : 10), weight: isActive ? .bold : .regular))
             .foregroundColor(isActive ? color : .white.opacity(0.35))
-            .lineLimit(2)
+            .lineLimit(compactMode ? 1 : 2)
             .minimumScaleFactor(0.7)
             .multilineTextAlignment(.center)
             .padding(.horizontal, isCompactWidth ? 4 : 8)
-            .padding(.vertical, 3)
+            .padding(.vertical, compactMode ? 2 : 3)
             .background(
                 RoundedRectangle(cornerRadius: 6)
                     .fill(isActive ? color.opacity(0.18) : Color.clear)

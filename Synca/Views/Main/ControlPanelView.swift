@@ -6,10 +6,12 @@ struct ControlPanelView: View {
     @AppStorage(AppPreferenceKey.appLanguage) private var appLanguageRaw = AppLanguage.japanese.rawValue
     let horizontalPadding: CGFloat
     let layoutWidth: CGFloat
+    let compactMode: Bool
 
-    init(horizontalPadding: CGFloat = 20, layoutWidth: CGFloat = 390) {
+    init(horizontalPadding: CGFloat = 20, layoutWidth: CGFloat = 390, compactMode: Bool = false) {
         self.horizontalPadding = horizontalPadding
         self.layoutWidth = layoutWidth
+        self.compactMode = compactMode
     }
 
     private var language: AppLanguage {
@@ -17,25 +19,30 @@ struct ControlPanelView: View {
     }
 
     private var isCompactWidth: Bool {
-        layoutWidth < 360
+        layoutWidth < 360 || compactMode
     }
 
     private var sideButtonWidth: CGFloat {
-        min(max(layoutWidth * 0.22, 72), 96)
+        if compactMode {
+            return min(max(layoutWidth * 0.2, 58), 82)
+        }
+        return min(max(layoutWidth * 0.22, 72), 96)
     }
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: compactMode ? 10 : 16) {
             dialogueBubble
             controlButtons
         }
         .padding(.horizontal, horizontalPadding)
-        .padding(.bottom, 8)
+        .padding(.bottom, compactMode ? 4 : 8)
     }
 
     @ViewBuilder
     private var controlButtons: some View {
-        if isCompactWidth {
+        if compactMode {
+            compactRowButtons
+        } else if isCompactWidth {
             stackedButtons
         } else {
             ViewThatFits(in: .horizontal) {
@@ -74,7 +81,7 @@ struct ControlPanelView: View {
     }
 
     private var dialogueBubble: some View {
-        let dialogueLineLimit = isCompactWidth ? 6 : (layoutWidth < 400 ? 4 : 3)
+        let dialogueLineLimit = compactMode ? 2 : (isCompactWidth ? 6 : (layoutWidth < 400 ? 4 : 3))
         let iconSize: CGFloat = isCompactWidth ? 30 : 32
 
         return HStack(alignment: .top, spacing: 12) {
@@ -109,8 +116,8 @@ struct ControlPanelView: View {
                 .animation(.easeInOut(duration: 0.4), value: viewModel.currentDialogue)
         }
         .padding(.horizontal, isCompactWidth ? 12 : 14)
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity, minHeight: isCompactWidth ? 76 : 64, alignment: .leading)
+        .padding(.vertical, compactMode ? 8 : 10)
+        .frame(maxWidth: .infinity, minHeight: compactMode ? 52 : (isCompactWidth ? 76 : 64), alignment: .leading)
         .glassCard(cornerRadius: 16)
         .onTapGesture {
             viewModel.refreshDialogue()
@@ -139,7 +146,7 @@ struct ControlPanelView: View {
                     .minimumScaleFactor(0.8)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 52)
+            .frame(height: compactMode ? 46 : 52)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(

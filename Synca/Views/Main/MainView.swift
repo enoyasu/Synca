@@ -23,21 +23,28 @@ struct MainView: View {
                     containerHeight: proxy.size.height
                 )
 
-                ScrollView(.vertical, showsIndicators: metrics.showsScrollIndicators) {
+                if metrics.isLandscape {
                     VStack(spacing: 0) {
                         AdBannerView(isHidden: viewModel.isPremium)
-
-                        if metrics.useLandscapeColumns {
-                            landscapeContent(metrics: metrics, language: language)
-                        } else {
-                            portraitContent(metrics: metrics, language: language)
-                        }
+                        landscapeContent(metrics: metrics, language: language)
+                            .frame(maxHeight: .infinity, alignment: .top)
                     }
                     .padding(.top, metrics.topInset)
                     .padding(.bottom, metrics.bottomInset)
-                    .frame(maxWidth: .infinity, minHeight: metrics.minContentHeight, alignment: .topLeading)
+                    .safeAreaPadding(.horizontal, metrics.baseHorizontalPadding)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                } else {
+                    ScrollView(.vertical, showsIndicators: metrics.showsScrollIndicators) {
+                        VStack(spacing: 0) {
+                            AdBannerView(isHidden: viewModel.isPremium)
+                            portraitContent(metrics: metrics, language: language)
+                        }
+                        .padding(.top, metrics.topInset)
+                        .padding(.bottom, metrics.bottomInset)
+                        .frame(maxWidth: .infinity, minHeight: metrics.minContentHeight, alignment: .topLeading)
+                    }
+                    .safeAreaPadding(.horizontal, metrics.baseHorizontalPadding)
                 }
-                .safeAreaPadding(.horizontal, metrics.baseHorizontalPadding)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
@@ -127,41 +134,59 @@ struct MainView: View {
     }
 
     private func landscapeContent(metrics: MainLayoutMetrics, language: AppLanguage) -> some View {
-        HStack(alignment: .top, spacing: metrics.landscapeSpacing) {
-            VStack(spacing: 12) {
-                headerBar(layoutWidth: metrics.landscapeLeftColumnWidth, language: language)
+        GeometryReader { geo in
+            let availableHeight = max(geo.size.height - 8, 0)
+            let headerEstimatedHeight: CGFloat = metrics.landscapeLeftColumnWidth < 360 ? 78 : 52
+            let leftSpacing: CGFloat = 8
+            let characterHeight = max(
+                min(metrics.landscapeCharacterHeight, availableHeight - headerEstimatedHeight - leftSpacing),
+                160
+            )
 
-                CharacterView(
-                    character: viewModel.currentCharacter,
-                    state: viewModel.emotionState,
-                    animationState: viewModel.characterAnimationState,
-                    gauge: viewModel.emotionGauge,
-                    layoutWidth: metrics.landscapeLeftColumnWidth,
-                    scaleBoost: metrics.landscapeCharacterScaleBoost
-                )
-                .frame(height: metrics.landscapeCharacterHeight)
+            let rightSpacing: CGFloat = 8
+            let gaugeHeight = max(min(availableHeight * 0.38, 168), 100)
+            let controlHeight = max(availableHeight - gaugeHeight - rightSpacing, 116)
+
+            HStack(alignment: .top, spacing: metrics.landscapeSpacing) {
+                VStack(spacing: leftSpacing) {
+                    headerBar(layoutWidth: metrics.landscapeLeftColumnWidth, language: language)
+
+                    CharacterView(
+                        character: viewModel.currentCharacter,
+                        state: viewModel.emotionState,
+                        animationState: viewModel.characterAnimationState,
+                        gauge: viewModel.emotionGauge,
+                        layoutWidth: metrics.landscapeLeftColumnWidth,
+                        scaleBoost: metrics.landscapeCharacterScaleBoost
+                    )
+                    .frame(height: characterHeight)
+                }
+                .frame(width: metrics.landscapeLeftColumnWidth, alignment: .topLeading)
+
+                VStack(spacing: rightSpacing) {
+                    EmotionGaugeView(
+                        gauge: viewModel.emotionGauge,
+                        state: viewModel.emotionState,
+                        layoutWidth: metrics.landscapeRightColumnWidth,
+                        pulseTrigger: viewModel.gaugePulseTrigger,
+                        pulseStrength: viewModel.gaugePulseStrength,
+                        compactMode: true
+                    )
+                    .frame(height: gaugeHeight)
+
+                    ControlPanelView(
+                        horizontalPadding: 0,
+                        layoutWidth: metrics.landscapeRightColumnWidth,
+                        compactMode: true
+                    )
+                    .frame(height: controlHeight)
+                }
+                .frame(width: metrics.landscapeRightColumnWidth, alignment: .topLeading)
             }
-            .frame(width: metrics.landscapeLeftColumnWidth, alignment: .topLeading)
-
-            VStack(spacing: 12) {
-                EmotionGaugeView(
-                    gauge: viewModel.emotionGauge,
-                    state: viewModel.emotionState,
-                    layoutWidth: metrics.landscapeRightColumnWidth,
-                    pulseTrigger: viewModel.gaugePulseTrigger,
-                    pulseStrength: viewModel.gaugePulseStrength
-                )
-
-                ControlPanelView(
-                    horizontalPadding: 0,
-                    layoutWidth: metrics.landscapeRightColumnWidth
-                )
-            }
-            .frame(width: metrics.landscapeRightColumnWidth, alignment: .topLeading)
+            .frame(width: metrics.landscapeContainerWidth, alignment: .leading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .padding(.top, 8)
         }
-        .frame(width: metrics.landscapeContainerWidth, alignment: .leading)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.top, 8)
     }
 
     // MARK: - Header
@@ -311,7 +336,7 @@ private struct MainLayoutMetrics {
             landscapeLeftColumnWidth = totalColumnWidth * 0.52
         }
         landscapeRightColumnWidth = max(totalColumnWidth - landscapeLeftColumnWidth, 0)
-        landscapeCharacterHeight = max(min(proxy.size.height * 0.66, 430), 220)
+        landscapeCharacterHeight = max(min(proxy.size.height * 0.54, 330), 190)
         landscapeCharacterScaleBoost = safeWidth >= 900 ? 1.2 : (safeWidth >= 760 ? 1.16 : 1.1)
         topInset = max(proxy.safeAreaInsets.top, 8)
         bottomInset = max(proxy.safeAreaInsets.bottom, 12)
