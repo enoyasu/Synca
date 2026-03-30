@@ -143,7 +143,7 @@ struct MainView: View {
                 160
             )
 
-            let rightSpacing: CGFloat = 8
+            let rightSpacing: CGFloat = 4
             let gaugeHeight = max(min(availableHeight * 0.38, 168), 100)
             let controlHeight = max(availableHeight - gaugeHeight - rightSpacing, 116)
 
@@ -179,7 +179,7 @@ struct MainView: View {
                         layoutWidth: metrics.landscapeRightColumnWidth,
                         compactMode: true
                     )
-                    .frame(height: controlHeight)
+                    .frame(height: controlHeight, alignment: .top)
                 }
                 .frame(width: metrics.landscapeRightColumnWidth, alignment: .topLeading)
             }
