@@ -15,10 +15,11 @@ struct MainView: View {
 
             GeometryReader { proxy in
                 let isCompactHeight = proxy.size.height < 760
-                let isNarrowWidth = proxy.size.width < 360
-                let horizontalPadding: CGFloat = isNarrowWidth ? 14 : 20
+                let width = proxy.size.width
+                let horizontalPadding: CGFloat = width < 360 ? 14 : (width < 420 ? 16 : 20)
                 let characterHeight: CGFloat = isCompactHeight ? 220 : 280
-                let sideButtonWidth: CGFloat = isNarrowWidth ? 56 : 64
+                let sideButtonWidth: CGFloat = width < 360 ? 56 : (width > 800 ? 72 : 64)
+                let contentWidth = max(width - horizontalPadding * 2, 0)
                 let topInset = max(proxy.safeAreaInsets.top, 8)
                 let bottomInset = max(proxy.safeAreaInsets.bottom, 12)
                 let contentMinHeight = max(proxy.size.height - topInset - bottomInset, 0)
@@ -29,7 +30,7 @@ struct MainView: View {
                         AdBannerView(isHidden: viewModel.isPremium)
 
                         // ヘッダー
-                        headerBar(isNarrowWidth: isNarrowWidth)
+                        headerBar(layoutWidth: contentWidth)
                             .padding(.horizontal, horizontalPadding)
                             .padding(.top, 8)
 
@@ -54,7 +55,8 @@ struct MainView: View {
                         // コントロールパネル
                         ControlPanelView(
                             horizontalPadding: horizontalPadding,
-                            sideButtonWidth: sideButtonWidth
+                            sideButtonWidth: sideButtonWidth,
+                            layoutWidth: contentWidth
                         )
                             .padding(.top, isCompactHeight ? 6 : 12)
                     }
@@ -111,73 +113,95 @@ struct MainView: View {
 
     // MARK: - Header
 
-    private func headerBar(isNarrowWidth: Bool) -> some View {
-        HStack(spacing: isNarrowWidth ? 8 : 12) {
-            // アプリロゴ
-            HStack(spacing: 6) {
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color(hex: "A78BFA"),
-                                    Color(hex: "7C3AED")
-                                ]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+    private func headerBar(layoutWidth: CGFloat) -> some View {
+        let isCompactWidth = layoutWidth < 360
+        let isMediumWidth = layoutWidth < 460
+        let characterMaxWidth = max(min(layoutWidth * (isMediumWidth ? 0.34 : 0.42), 210), 80)
+
+        return VStack(spacing: 8) {
+            HStack(spacing: isCompactWidth ? 8 : 12) {
+                // アプリロゴ
+                HStack(spacing: 6) {
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color(hex: "A78BFA"),
+                                        Color(hex: "7C3AED")
+                                    ]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
                             )
-                        )
-                        .frame(width: 30, height: 30)
-                    Image(systemName: "waveform")
-                        .font(.system(size: 14, weight: .bold))
+                            .frame(width: 30, height: 30)
+                        Image(systemName: "waveform")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                    Text("Synca")
+                        .font(.system(size: 20, weight: .black, design: .rounded))
                         .foregroundColor(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                 }
-                Text("Synca")
-                    .font(.system(size: 20, weight: .black, design: .rounded))
-                    .foregroundColor(.white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-            }
-            .layoutPriority(1)
+                .layoutPriority(1)
 
-            Spacer(minLength: isNarrowWidth ? 6 : 10)
+                Spacer(minLength: isCompactWidth ? 4 : 8)
 
-            // 現在キャラ名
-            HStack(spacing: 6) {
-                Circle()
-                    .fill(viewModel.currentCharacter.accentColor)
-                    .frame(width: 8, height: 8)
-                    .shadow(color: viewModel.currentCharacter.accentColor, radius: 4)
-                Text(viewModel.currentCharacter.name)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.8))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-                    .layoutPriority(1)
-                    .frame(maxWidth: isNarrowWidth ? 88 : 140, alignment: .leading)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .glassCard(cornerRadius: 12)
-
-            // セッション状態インジケーター
-            if viewModel.isRunning && !isNarrowWidth {
-                HStack(spacing: 4) {
+                // 現在キャラ名
+                HStack(spacing: 6) {
                     Circle()
-                        .fill(Color(hex: "10B981"))
-                        .frame(width: 6, height: 6)
-                        .shadow(color: Color(hex: "10B981"), radius: 4)
-                    Text("LIVE")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(Color(hex: "10B981"))
+                        .fill(viewModel.currentCharacter.accentColor)
+                        .frame(width: 8, height: 8)
+                        .shadow(color: viewModel.currentCharacter.accentColor, radius: 4)
+                    Text(viewModel.currentCharacter.name)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.8))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                        .layoutPriority(1)
+                        .frame(maxWidth: characterMaxWidth, alignment: .leading)
                 }
-                .padding(.horizontal, 10)
+                .padding(.horizontal, isCompactWidth ? 10 : 12)
                 .padding(.vertical, 6)
-                .glassCard(cornerRadius: 10)
-                .transition(.scale.combined(with: .opacity))
+                .glassCard(cornerRadius: 12)
+
+                // 横幅に余裕がある場合のみ同列でLIVE表示
+                if viewModel.isRunning && !isMediumWidth {
+                    liveIndicator(showText: true)
+                        .transition(.scale.combined(with: .opacity))
+                }
+            }
+
+            // 中〜狭幅ではLIVEを2行目に逃して見切れを防止
+            if viewModel.isRunning && isMediumWidth {
+                HStack {
+                    Spacer()
+                    liveIndicator(showText: !isCompactWidth)
+                        .transition(.opacity.combined(with: .move(edge: .trailing)))
+                }
             }
         }
         .animation(.spring(response: 0.3), value: viewModel.isRunning)
+    }
+
+    private func liveIndicator(showText: Bool) -> some View {
+        HStack(spacing: showText ? 4 : 0) {
+            Circle()
+                .fill(Color(hex: "10B981"))
+                .frame(width: 6, height: 6)
+                .shadow(color: Color(hex: "10B981"), radius: 4)
+            if showText {
+                Text("LIVE")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(Color(hex: "10B981"))
+                    .lineLimit(1)
+            }
+        }
+        .padding(.horizontal, showText ? 10 : 8)
+        .padding(.vertical, 6)
+        .glassCard(cornerRadius: 10)
     }
 }
 

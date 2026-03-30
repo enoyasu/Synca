@@ -5,10 +5,12 @@ struct ControlPanelView: View {
     @EnvironmentObject var viewModel: MainViewModel
     let horizontalPadding: CGFloat
     let sideButtonWidth: CGFloat
+    let layoutWidth: CGFloat
 
-    init(horizontalPadding: CGFloat = 20, sideButtonWidth: CGFloat = 64) {
+    init(horizontalPadding: CGFloat = 20, sideButtonWidth: CGFloat = 64, layoutWidth: CGFloat = 390) {
         self.horizontalPadding = horizontalPadding
         self.sideButtonWidth = sideButtonWidth
+        self.layoutWidth = layoutWidth
     }
 
     var body: some View {
@@ -50,7 +52,12 @@ struct ControlPanelView: View {
     // MARK: - Dialogue Bubble
 
     private var dialogueBubble: some View {
-        HStack(spacing: 12) {
+        let isCompactWidth = layoutWidth < 360
+        let isMediumWidth = layoutWidth < 460
+        let dialogueLineLimit = isCompactWidth ? 4 : (isMediumWidth ? 3 : 2)
+        let iconSize: CGFloat = isCompactWidth ? 30 : 32
+
+        return HStack(spacing: 12) {
             // キャラアイコン
             Circle()
                 .fill(
@@ -63,10 +70,10 @@ struct ControlPanelView: View {
                         endPoint: .bottomTrailing
                     )
                 )
-                .frame(width: 32, height: 32)
+                .frame(width: iconSize, height: iconSize)
                 .overlay(
                     Text(String(viewModel.currentCharacter.name.prefix(1)))
-                        .font(.system(size: 14, weight: .bold))
+                        .font(.system(size: isCompactWidth ? 13 : 14, weight: .bold))
                         .foregroundColor(.white)
                 )
 
@@ -74,14 +81,16 @@ struct ControlPanelView: View {
             Text(viewModel.currentDialogue)
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.white.opacity(0.9))
-                .lineLimit(2)
-                .minimumScaleFactor(0.9)
+                .lineLimit(dialogueLineLimit)
+                .minimumScaleFactor(isCompactWidth ? 0.82 : 0.9)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
+                .layoutPriority(1)
                 .contentTransition(.opacity)
                 .animation(.easeInOut(duration: 0.4), value: viewModel.currentDialogue)
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, isCompactWidth ? 12 : 14)
         .padding(.vertical, 10)
         .glassCard(cornerRadius: 16)
         .onTapGesture {
