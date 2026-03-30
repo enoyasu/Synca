@@ -50,6 +50,8 @@ struct CharacterCardView: View {
                         Text(character.name)
                             .font(.system(size: 17, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
 
                         Text(character.description)
                             .font(.system(size: 12, weight: .regular))
@@ -168,6 +170,8 @@ struct CharacterCardView: View {
                         .font(.system(size: 11))
                     Text(character.unlockPrice ?? "¥120")
                         .font(.system(size: 13, weight: .bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                 }
                 .foregroundColor(.white)
                 .padding(.horizontal, 14)

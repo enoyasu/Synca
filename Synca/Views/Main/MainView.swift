@@ -15,7 +15,10 @@ struct MainView: View {
 
             GeometryReader { proxy in
                 let isCompactHeight = proxy.size.height < 760
+                let isNarrowWidth = proxy.size.width < 360
+                let horizontalPadding: CGFloat = isNarrowWidth ? 14 : 20
                 let characterHeight: CGFloat = isCompactHeight ? 220 : 280
+                let sideButtonWidth: CGFloat = isNarrowWidth ? 56 : 64
                 let topInset = max(proxy.safeAreaInsets.top, 8)
                 let bottomInset = max(proxy.safeAreaInsets.bottom, 12)
                 let contentMinHeight = max(proxy.size.height - topInset - bottomInset, 0)
@@ -26,8 +29,8 @@ struct MainView: View {
                         AdBannerView(isHidden: viewModel.isPremium)
 
                         // ヘッダー
-                        headerBar
-                            .padding(.horizontal, 20)
+                        headerBar(isNarrowWidth: isNarrowWidth)
+                            .padding(.horizontal, horizontalPadding)
                             .padding(.top, 8)
 
                         // キャラクター
@@ -45,11 +48,14 @@ struct MainView: View {
                             gauge: viewModel.emotionGauge,
                             state: viewModel.emotionState
                         )
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, horizontalPadding)
                         .padding(.top, isCompactHeight ? 8 : 16)
 
                         // コントロールパネル
-                        ControlPanelView()
+                        ControlPanelView(
+                            horizontalPadding: horizontalPadding,
+                            sideButtonWidth: sideButtonWidth
+                        )
                             .padding(.top, isCompactHeight ? 6 : 12)
                     }
                     .padding(.top, topInset)
@@ -105,8 +111,8 @@ struct MainView: View {
 
     // MARK: - Header
 
-    private var headerBar: some View {
-        HStack {
+    private func headerBar(isNarrowWidth: Bool) -> some View {
+        HStack(spacing: isNarrowWidth ? 8 : 12) {
             // アプリロゴ
             HStack(spacing: 6) {
                 ZStack {
@@ -129,9 +135,12 @@ struct MainView: View {
                 Text("Synca")
                     .font(.system(size: 20, weight: .black, design: .rounded))
                     .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
+            .layoutPriority(1)
 
-            Spacer()
+            Spacer(minLength: isNarrowWidth ? 6 : 10)
 
             // 現在キャラ名
             HStack(spacing: 6) {
@@ -145,13 +154,14 @@ struct MainView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
                     .layoutPriority(1)
+                    .frame(maxWidth: isNarrowWidth ? 88 : 140, alignment: .leading)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .glassCard(cornerRadius: 12)
 
             // セッション状態インジケーター
-            if viewModel.isRunning {
+            if viewModel.isRunning && !isNarrowWidth {
                 HStack(spacing: 4) {
                     Circle()
                         .fill(Color(hex: "10B981"))

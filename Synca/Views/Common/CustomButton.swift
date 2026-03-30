@@ -46,18 +46,32 @@ struct IconButton: View {
     let icon: String
     let label: String
     let color: Color
+    let width: CGFloat
     let action: () -> Void
 
+    init(icon: String, label: String, color: Color, width: CGFloat = 64, action: @escaping () -> Void) {
+        self.icon = icon
+        self.label = label
+        self.color = color
+        self.width = width
+        self.action = action
+    }
+
     var body: some View {
+        let iconSize: CGFloat = width < 60 ? 18 : 20
+        let labelSize: CGFloat = width < 60 ? 9 : 10
+
         Button(action: action) {
             VStack(spacing: 4) {
                 Image(systemName: icon)
-                    .font(.system(size: 20, weight: .semibold))
+                    .font(.system(size: iconSize, weight: .semibold))
                 Text(label)
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.system(size: labelSize, weight: .medium))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
             .foregroundColor(color)
-            .frame(width: 64, height: 56)
+            .frame(width: width, height: 56)
             .background(
                 RoundedRectangle(cornerRadius: 14)
                     .fill(color.opacity(0.12))

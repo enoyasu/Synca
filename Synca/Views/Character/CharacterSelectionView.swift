@@ -9,51 +9,52 @@ struct CharacterSelectionView: View {
     @State private var selectedForPurchase: Character?
     @State private var isPurchasing = false
 
-    private let columns = [
-        GridItem(.flexible(), spacing: 14),
-        GridItem(.flexible(), spacing: 14)
-    ]
-
     var body: some View {
         NavigationStack {
-            ZStack {
-                // 背景
-                Color(hex: "0A0A1A").ignoresSafeArea()
+            GeometryReader { proxy in
+                let isNarrowWidth = proxy.size.width < 360
+                let horizontalPadding: CGFloat = isNarrowWidth ? 14 : 20
+                let gridSpacing: CGFloat = isNarrowWidth ? 10 : 14
 
-                ScrollView {
-                    VStack(spacing: 20) {
-                        // ヘッダー説明
-                        headerInfo
-                            .padding(.horizontal, 20)
-                            .padding(.top, 4)
+                ZStack {
+                    // 背景
+                    Color(hex: "0A0A1A").ignoresSafeArea()
 
-                        // キャラクターグリッド
-                        LazyVGrid(columns: columns, spacing: 14) {
-                            ForEach(viewModel.availableCharacters) { character in
-                                CharacterCardView(
-                                    character: character,
-                                    isSelected: viewModel.currentCharacter.id == character.id,
-                                    onTap: {
-                                        viewModel.selectCharacter(character)
-                                        dismiss()
-                                    },
-                                    onPurchase: {
-                                        selectedForPurchase = character
-                                        showingPurchaseAlert = true
-                                    }
-                                )
-                                .frame(height: 220)
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            // ヘッダー説明
+                            headerInfo
+                                .padding(.horizontal, horizontalPadding)
+                                .padding(.top, 4)
+
+                            // キャラクターグリッド
+                            LazyVGrid(columns: gridColumns(isNarrowWidth: isNarrowWidth, spacing: gridSpacing), spacing: gridSpacing) {
+                                ForEach(viewModel.availableCharacters) { character in
+                                    CharacterCardView(
+                                        character: character,
+                                        isSelected: viewModel.currentCharacter.id == character.id,
+                                        onTap: {
+                                            viewModel.selectCharacter(character)
+                                            dismiss()
+                                        },
+                                        onPurchase: {
+                                            selectedForPurchase = character
+                                            showingPurchaseAlert = true
+                                        }
+                                    )
+                                    .frame(height: isNarrowWidth ? 210 : 220)
+                                }
+                            }
+                            .padding(.horizontal, horizontalPadding)
+
+                            // 広告削除オファー
+                            if !viewModel.isPremium {
+                                removeAdsCard(isNarrowWidth: isNarrowWidth)
+                                    .padding(.horizontal, horizontalPadding)
                             }
                         }
-                        .padding(.horizontal, 20)
-
-                        // 広告削除オファー
-                        if !viewModel.isPremium {
-                            removeAdsCard
-                                .padding(.horizontal, 20)
-                        }
+                        .padding(.bottom, 30)
                     }
-                    .padding(.bottom, 30)
                 }
             }
             .navigationTitle("キャラクター選択")
@@ -107,8 +108,78 @@ struct CharacterSelectionView: View {
 
     // MARK: - Remove Ads Card
 
-    private var removeAdsCard: some View {
-        HStack(spacing: 14) {
+    @ViewBuilder
+    private func removeAdsCard(isNarrowWidth: Bool) -> some View {
+        if isNarrowWidth {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 10) {
+                    removeAdsIcon
+                    removeAdsText
+                }
+
+                Button {
+                    Task {
+                        await viewModel.purchaseRemoveAds()
+                    }
+                } label: {
+                    Text("購入")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [Color(hex: "F59E0B"), Color(hex: "D97706")]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                        )
+                }
+                .buttonStyle(ScaleButtonStyle())
+            }
+            .padding(14)
+            .glassCard(cornerRadius: 16)
+        } else {
+            HStack(spacing: 14) {
+                removeAdsIcon
+                removeAdsText
+
+                Spacer()
+
+                Button {
+                    Task {
+                        await viewModel.purchaseRemoveAds()
+                    }
+                } label: {
+                    Text("購入")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [Color(hex: "F59E0B"), Color(hex: "D97706")]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                        )
+                }
+                .fixedSize(horizontal: true, vertical: false)
+                .buttonStyle(ScaleButtonStyle())
+            }
+            .padding(14)
+            .glassCard(cornerRadius: 16)
+        }
+    }
+
+    private var removeAdsIcon: some View {
+        ZStack {
             ZStack {
                 Circle()
                     .fill(
@@ -123,50 +194,24 @@ struct CharacterSelectionView: View {
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(.white)
             }
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("広告を削除")
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(.white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                Text("¥250でずっと広告なし体験")
-                    .font(.system(size: 12))
-                    .foregroundColor(.white.opacity(0.65))
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.85)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .layoutPriority(1)
-
-            Spacer()
-
-            Button {
-                Task {
-                    await viewModel.purchaseRemoveAds()
-                }
-            } label: {
-                Text("購入")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [Color(hex: "F59E0B"), Color(hex: "D97706")]),
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                    )
-            }
-            .fixedSize(horizontal: true, vertical: false)
-            .buttonStyle(ScaleButtonStyle())
         }
-        .padding(14)
-        .glassCard(cornerRadius: 16)
+    }
+
+    private var removeAdsText: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text("広告を削除")
+                .font(.system(size: 15, weight: .bold))
+                .foregroundColor(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            Text("¥250でずっと広告なし体験")
+                .font(.system(size: 12))
+                .foregroundColor(.white.opacity(0.65))
+                .lineLimit(2)
+                .minimumScaleFactor(0.85)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .layoutPriority(1)
     }
 
     // MARK: - Purchasing Overlay
@@ -193,6 +238,16 @@ struct CharacterSelectionView: View {
         isPurchasing = true
         await viewModel.purchaseCharacter(character)
         isPurchasing = false
+    }
+
+    private func gridColumns(isNarrowWidth: Bool, spacing: CGFloat) -> [GridItem] {
+        if isNarrowWidth {
+            return [GridItem(.flexible(), spacing: spacing)]
+        }
+        return [
+            GridItem(.flexible(), spacing: spacing),
+            GridItem(.flexible(), spacing: spacing)
+        ]
     }
 }
 

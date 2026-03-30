@@ -3,6 +3,13 @@ import SwiftUI
 /// 画面下部のコントロールパネル（START/STOP・キャラ選択・設定）
 struct ControlPanelView: View {
     @EnvironmentObject var viewModel: MainViewModel
+    let horizontalPadding: CGFloat
+    let sideButtonWidth: CGFloat
+
+    init(horizontalPadding: CGFloat = 20, sideButtonWidth: CGFloat = 64) {
+        self.horizontalPadding = horizontalPadding
+        self.sideButtonWidth = sideButtonWidth
+    }
 
     var body: some View {
         VStack(spacing: 16) {
@@ -10,12 +17,13 @@ struct ControlPanelView: View {
             dialogueBubble
 
             // メインコントロール
-            HStack(spacing: 12) {
+            HStack(spacing: sideButtonWidth < 60 ? 8 : 12) {
                 // キャラクター選択
                 IconButton(
                     icon: "person.2.fill",
                     label: "キャラ",
-                    color: Color(hex: "A78BFA")
+                    color: Color(hex: "A78BFA"),
+                    width: sideButtonWidth
                 ) {
                     viewModel.presentCharacterSelection()
                 }
@@ -28,13 +36,14 @@ struct ControlPanelView: View {
                 IconButton(
                     icon: "slider.horizontal.3",
                     label: "設定",
-                    color: Color(hex: "60A5FA")
+                    color: Color(hex: "60A5FA"),
+                    width: sideButtonWidth
                 ) {
                     viewModel.presentSettings()
                 }
             }
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, horizontalPadding)
         .padding(.bottom, 8)
     }
 
