@@ -146,7 +146,7 @@ struct MainView: View {
                 160
             )
 
-            let rightSpacing: CGFloat = sectionSpacing
+            let rightSpacing: CGFloat = 8
             let gaugeHeight = max(min(availableHeight * 0.31, 146), 96)
             let controlHeight = max(availableHeight - gaugeHeight - rightSpacing, 116)
 

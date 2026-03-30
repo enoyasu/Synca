@@ -28,8 +28,13 @@ struct ControlPanelView: View {
 
     var body: some View {
         VStack(spacing: sectionSpacing) {
-            dialogueBubble
-            controlButtons
+            if compactMode {
+                compactStackedButtons
+                dialogueBubble
+            } else {
+                dialogueBubble
+                controlButtons
+            }
         }
         .padding(.horizontal, horizontalPadding)
         .padding(.bottom, compactMode ? 0 : 8)
@@ -37,11 +42,7 @@ struct ControlPanelView: View {
 
     @ViewBuilder
     private var controlButtons: some View {
-        if compactMode {
-            compactStackedButtons
-        } else {
-            portraitButtons
-        }
+        portraitButtons
     }
 
     private var compactStackedButtons: some View {
