@@ -24,9 +24,9 @@ struct ControlPanelView: View {
 
     private var sideButtonWidth: CGFloat {
         if compactMode {
-            return min(max(layoutWidth * 0.2, 58), 82)
+            return min(max(layoutWidth * 0.22, 64), 92)
         }
-        return min(max(layoutWidth * 0.22, 72), 96)
+        return min(max(layoutWidth * 0.24, 78), 104)
     }
 
     private var sectionSpacing: CGFloat {
@@ -108,7 +108,7 @@ struct ControlPanelView: View {
                 )
 
             Text(viewModel.currentDialogue)
-                .font(.system(size: 14, weight: .medium))
+                .font(.system(size: compactMode ? 14 : 15, weight: .medium))
                 .foregroundColor(.white.opacity(0.9))
                 .lineLimit(dialogueLineLimit)
                 .minimumScaleFactor(isCompactWidth ? 0.82 : 0.9)
@@ -150,7 +150,7 @@ struct ControlPanelView: View {
                     .minimumScaleFactor(0.8)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: compactMode ? 46 : 52)
+            .frame(height: compactMode ? 50 : 54)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(

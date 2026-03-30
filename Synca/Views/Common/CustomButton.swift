@@ -59,9 +59,9 @@ struct IconButton: View {
 
     var body: some View {
         let referenceWidth = width ?? 72
-        let iconSize: CGFloat = referenceWidth < 80 ? 18 : 20
-        let labelSize: CGFloat = referenceWidth < 80 ? 9 : 10
-        let buttonHeight: CGFloat = referenceWidth < 80 ? 54 : 56
+        let iconSize: CGFloat = referenceWidth < 80 ? 19 : 21
+        let labelSize: CGFloat = referenceWidth < 80 ? 10 : 11
+        let buttonHeight: CGFloat = referenceWidth < 80 ? 56 : 58
 
         Button(action: action) {
             VStack(spacing: 4) {

@@ -147,7 +147,7 @@ struct MainView: View {
             )
 
             let rightSpacing: CGFloat = sectionSpacing
-            let gaugeHeight = max(min(availableHeight * 0.38, 168), 100)
+            let gaugeHeight = max(min(availableHeight * 0.34, 152), 100)
             let controlHeight = max(availableHeight - gaugeHeight - rightSpacing, 116)
 
             HStack(alignment: .top, spacing: metrics.landscapeSpacing) {
@@ -175,7 +175,7 @@ struct MainView: View {
                         pulseStrength: viewModel.gaugePulseStrength,
                         compactMode: true
                     )
-                    .frame(height: gaugeHeight)
+                    .frame(height: gaugeHeight, alignment: .top)
 
                     ControlPanelView(
                         horizontalPadding: 0,

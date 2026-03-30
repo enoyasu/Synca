@@ -199,7 +199,7 @@ struct EmotionGaugeView: View {
         let isActive = state == EmotionState(gauge: (range.lowerBound + range.upperBound) / 2)
         return Text(label)
             .font(.system(size: compactMode ? 8.5 : (isCompactWidth ? 9 : 10), weight: isActive ? .bold : .regular))
-            .foregroundColor(isActive ? color : .white.opacity(0.35))
+            .foregroundColor(isActive ? color : .white.opacity(0.48))
             .lineLimit(compactMode ? 1 : 2)
             .minimumScaleFactor(0.7)
             .multilineTextAlignment(.center)
