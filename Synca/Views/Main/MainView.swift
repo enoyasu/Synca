@@ -16,75 +16,59 @@ struct MainView: View {
     var body: some View {
         ZStack(alignment: .top) {
             GeometryReader { proxy in
-                let isCompactHeight = proxy.size.height < 760
                 let width = proxy.size.width
-                let contentLeftOffset: CGFloat = -20
+                let height = proxy.size.height
+                let isLandscape = width > height
+                let isCompactHeight = height < 760
                 let horizontalPadding: CGFloat = width < 360 ? 10 : (width < 420 ? 12 : 16)
-                let characterHeight: CGFloat = isCompactHeight
+                let portraitCharacterHeight: CGFloat = isCompactHeight
                     ? (width < 360 ? 200 : 220)
                     : (width < 360 ? 250 : 280)
                 let availableWidth = max(width - horizontalPadding * 2, 0)
-                let contentWidth: CGFloat = width > 700 ? min(availableWidth, 400) : min(availableWidth, 440)
-                let sideButtonWidth: CGFloat = contentWidth < 300 ? 42 : (contentWidth < 340 ? 44 : (contentWidth < 380 ? 48 : 56))
+                let portraitContentWidth: CGFloat = width > 700 ? min(availableWidth, 400) : min(availableWidth, 440)
+                let portraitSideButtonWidth: CGFloat = portraitContentWidth < 300 ? 42 : (portraitContentWidth < 340 ? 44 : (portraitContentWidth < 380 ? 48 : 56))
+                let landscapeColumnsWidth: CGFloat = width > 1000 ? min(availableWidth, 940) : min(availableWidth, 860)
+                let landscapeSpacing: CGFloat = width < 780 ? 10 : 14
+                let landscapeColumnWidth = max((landscapeColumnsWidth - landscapeSpacing) / 2, 0)
+                let landscapeCharacterHeight = max(min(height * 0.55, 320), 190)
+                let landscapeSideButtonWidth: CGFloat = landscapeColumnWidth < 320 ? 44 : (landscapeColumnWidth < 380 ? 48 : 56)
                 let topInset = max(proxy.safeAreaInsets.top, 8)
                 let bottomInset = max(proxy.safeAreaInsets.bottom, 12)
-                let contentMinHeight = max(proxy.size.height - topInset - bottomInset, 0)
+                let contentMinHeight = max(height - topInset - bottomInset, 0)
 
                 ZStack(alignment: .top) {
                     backgroundLayer(
                         containerWidth: width,
-                        containerHeight: proxy.size.height
+                        containerHeight: height
                     )
 
-                    ScrollView(.vertical, showsIndicators: isCompactHeight) {
+                    ScrollView(.vertical, showsIndicators: isCompactHeight || isLandscape) {
                         VStack(spacing: 0) {
                             // 上部：AdMobバナー
                             AdBannerView(isHidden: viewModel.isPremium)
 
-                            // ヘッダー
-                            headerBar(layoutWidth: contentWidth, language: language)
-                                .frame(maxWidth: contentWidth)
-                                .frame(maxWidth: .infinity)
-                                .padding(.top, 8)
-
-                            // キャラクター
-                            CharacterView(
-                                character: viewModel.currentCharacter,
-                                state: viewModel.emotionState,
-                                animationState: viewModel.characterAnimationState,
-                                gauge: viewModel.emotionGauge,
-                                layoutWidth: contentWidth
-                            )
-                            .frame(height: characterHeight)
-                            .frame(maxWidth: contentWidth)
-                            .frame(maxWidth: .infinity)
-                            .padding(.top, isCompactHeight ? 8 : 24)
-
-                            // 感情ゲージ
-                            EmotionGaugeView(
-                                gauge: viewModel.emotionGauge,
-                                state: viewModel.emotionState,
-                                layoutWidth: contentWidth,
-                                pulseTrigger: viewModel.gaugePulseTrigger,
-                                pulseStrength: viewModel.gaugePulseStrength
-                            )
-                            .frame(maxWidth: contentWidth)
-                            .frame(maxWidth: .infinity)
-                            .padding(.top, isCompactHeight ? 8 : 16)
-
-                            // コントロールパネル
-                            ControlPanelView(
-                                horizontalPadding: 0,
-                                sideButtonWidth: sideButtonWidth,
-                                layoutWidth: contentWidth
-                            )
-                                .frame(maxWidth: contentWidth)
-                                .frame(maxWidth: .infinity)
-                                .padding(.top, isCompactHeight ? 6 : 12)
+                            if isLandscape {
+                                landscapeContent(
+                                    horizontalPadding: horizontalPadding,
+                                    columnWidth: landscapeColumnWidth,
+                                    columnsWidth: landscapeColumnsWidth,
+                                    spacing: landscapeSpacing,
+                                    characterHeight: landscapeCharacterHeight,
+                                    sideButtonWidth: landscapeSideButtonWidth,
+                                    language: language
+                                )
+                            } else {
+                                portraitContent(
+                                    horizontalPadding: horizontalPadding,
+                                    contentWidth: portraitContentWidth,
+                                    characterHeight: portraitCharacterHeight,
+                                    sideButtonWidth: portraitSideButtonWidth,
+                                    isCompactHeight: isCompactHeight,
+                                    language: language
+                                )
+                            }
                         }
-                        .padding(.horizontal, horizontalPadding)
                         .padding(.top, topInset)
-                        .offset(x: contentLeftOffset)
                         .frame(minHeight: contentMinHeight, alignment: .top)
                         .padding(.bottom, bottomInset)
                     }
@@ -138,6 +122,104 @@ struct MainView: View {
         }
         .ignoresSafeArea()
         .animation(.easeInOut(duration: 1.5), value: viewModel.emotionState)
+    }
+
+    private func portraitContent(
+        horizontalPadding: CGFloat,
+        contentWidth: CGFloat,
+        characterHeight: CGFloat,
+        sideButtonWidth: CGFloat,
+        isCompactHeight: Bool,
+        language: AppLanguage
+    ) -> some View {
+        VStack(spacing: 0) {
+            // ヘッダー
+            headerBar(layoutWidth: contentWidth, language: language)
+                .frame(maxWidth: contentWidth)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 8)
+
+            // キャラクター
+            CharacterView(
+                character: viewModel.currentCharacter,
+                state: viewModel.emotionState,
+                animationState: viewModel.characterAnimationState,
+                gauge: viewModel.emotionGauge,
+                layoutWidth: contentWidth
+            )
+            .frame(height: characterHeight)
+            .frame(maxWidth: contentWidth)
+            .frame(maxWidth: .infinity)
+            .padding(.top, isCompactHeight ? 8 : 24)
+
+            // 感情ゲージ
+            EmotionGaugeView(
+                gauge: viewModel.emotionGauge,
+                state: viewModel.emotionState,
+                layoutWidth: contentWidth,
+                pulseTrigger: viewModel.gaugePulseTrigger,
+                pulseStrength: viewModel.gaugePulseStrength
+            )
+            .frame(maxWidth: contentWidth)
+            .frame(maxWidth: .infinity)
+            .padding(.top, isCompactHeight ? 8 : 16)
+
+            // コントロールパネル
+            ControlPanelView(
+                horizontalPadding: 0,
+                sideButtonWidth: sideButtonWidth,
+                layoutWidth: contentWidth
+            )
+            .frame(maxWidth: contentWidth)
+            .frame(maxWidth: .infinity)
+            .padding(.top, isCompactHeight ? 6 : 12)
+        }
+        .padding(.horizontal, horizontalPadding)
+    }
+
+    private func landscapeContent(
+        horizontalPadding: CGFloat,
+        columnWidth: CGFloat,
+        columnsWidth: CGFloat,
+        spacing: CGFloat,
+        characterHeight: CGFloat,
+        sideButtonWidth: CGFloat,
+        language: AppLanguage
+    ) -> some View {
+        HStack(alignment: .top, spacing: spacing) {
+            VStack(spacing: 12) {
+                headerBar(layoutWidth: columnWidth, language: language)
+                CharacterView(
+                    character: viewModel.currentCharacter,
+                    state: viewModel.emotionState,
+                    animationState: viewModel.characterAnimationState,
+                    gauge: viewModel.emotionGauge,
+                    layoutWidth: columnWidth
+                )
+                .frame(height: characterHeight)
+            }
+            .frame(width: columnWidth, alignment: .top)
+
+            VStack(spacing: 12) {
+                EmotionGaugeView(
+                    gauge: viewModel.emotionGauge,
+                    state: viewModel.emotionState,
+                    layoutWidth: columnWidth,
+                    pulseTrigger: viewModel.gaugePulseTrigger,
+                    pulseStrength: viewModel.gaugePulseStrength
+                )
+                ControlPanelView(
+                    horizontalPadding: 0,
+                    sideButtonWidth: sideButtonWidth,
+                    layoutWidth: columnWidth
+                )
+            }
+            .frame(width: columnWidth, alignment: .top)
+        }
+        .frame(maxWidth: columnsWidth)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, horizontalPadding)
+        .padding(.top, 8)
     }
 
     // MARK: - Header

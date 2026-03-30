@@ -19,35 +19,45 @@ struct ControlPanelView: View {
     }
 
     var body: some View {
-        let isNarrowLayout = layoutWidth < 340
-
         VStack(spacing: 16) {
             // セリフ吹き出し
             dialogueBubble
 
             // メインコントロール
-            if isNarrowLayout {
-                VStack(spacing: 8) {
-                    startStopButton
-
-                    HStack(spacing: 8) {
-                        characterButton(width: nil)
-                            .frame(maxWidth: .infinity)
-                        settingsButton(width: nil)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-            } else {
-                HStack(spacing: sideButtonWidth < 60 ? 8 : 12) {
-                    characterButton(width: sideButtonWidth)
-                    startStopButton
-                        .frame(maxWidth: .infinity)
-                    settingsButton(width: sideButtonWidth)
-                }
-            }
+            controlButtons
         }
         .padding(.horizontal, horizontalPadding)
         .padding(.bottom, 8)
+    }
+
+    @ViewBuilder
+    private var controlButtons: some View {
+        ViewThatFits(in: .horizontal) {
+            compactRowButtons
+            stackedButtons
+        }
+    }
+
+    private var compactRowButtons: some View {
+        HStack(spacing: sideButtonWidth < 60 ? 8 : 12) {
+            characterButton(width: sideButtonWidth)
+            startStopButton
+                .frame(maxWidth: .infinity)
+            settingsButton(width: sideButtonWidth)
+        }
+    }
+
+    private var stackedButtons: some View {
+        VStack(spacing: 8) {
+            startStopButton
+
+            HStack(spacing: 8) {
+                characterButton(width: nil)
+                    .frame(maxWidth: .infinity)
+                settingsButton(width: nil)
+                    .frame(maxWidth: .infinity)
+            }
+        }
     }
 
     // MARK: - Dialogue Bubble
