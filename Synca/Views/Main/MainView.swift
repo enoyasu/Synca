@@ -98,7 +98,7 @@ struct MainView: View {
     private func portraitContent(metrics: MainLayoutMetrics, language: AppLanguage) -> some View {
         let panelSpacing: CGFloat = metrics.isCompactHeight ? 8 : 12
 
-        VStack(spacing: 0) {
+        return VStack(spacing: 0) {
             headerBar(layoutWidth: metrics.portraitContentWidth, language: language)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 8)
