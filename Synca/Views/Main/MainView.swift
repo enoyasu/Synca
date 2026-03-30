@@ -143,6 +143,7 @@ struct MainView: View {
     private func headerBar(layoutWidth: CGFloat, language: AppLanguage) -> some View {
         let isCompactWidth = layoutWidth < 330
         let isMediumWidth = layoutWidth < 390
+        let logoOffsetX: CGFloat = -20
         let characterMaxWidth = max(
             min(layoutWidth * (isCompactWidth ? 0.26 : (isMediumWidth ? 0.30 : 0.36)), 170),
             52
@@ -152,29 +153,22 @@ struct MainView: View {
             HStack(spacing: isCompactWidth ? 8 : 12) {
                 // アプリロゴ
                 HStack(spacing: 6) {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [
-                                        Color(hex: "A78BFA"),
-                                        Color(hex: "7C3AED")
-                                    ]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 30, height: 30)
-                        Image(systemName: "waveform")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white)
-                    }
+                    Image("BrandIcon")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 30, height: 30)
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .stroke(Color.white.opacity(0.2), lineWidth: 0.8)
+                        )
                     Text("Synca")
                         .font(.system(size: 20, weight: .black, design: .rounded))
                         .foregroundColor(.white)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
+                .offset(x: logoOffsetX)
                 .layoutPriority(1)
 
                 Spacer(minLength: isCompactWidth ? 4 : 8)
