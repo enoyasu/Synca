@@ -22,22 +22,19 @@ struct ControlPanelView: View {
         layoutWidth < 360 || compactMode
     }
 
-    private var sectionSpacing: CGFloat {
-        compactMode ? 10 : 12
-    }
+    private var sectionSpacing: CGFloat { 12 }
 
     var body: some View {
-        VStack(spacing: sectionSpacing) {
-            if compactMode {
-                compactStackedButtons
-                dialogueBubble
-            } else {
+        if compactMode {
+            compactLandscapeContent
+        } else {
+            VStack(spacing: sectionSpacing) {
                 dialogueBubble
                 controlButtons
             }
+            .padding(.horizontal, horizontalPadding)
+            .padding(.bottom, 8)
         }
-        .padding(.horizontal, horizontalPadding)
-        .padding(.bottom, compactMode ? 0 : 8)
     }
 
     @ViewBuilder
@@ -45,18 +42,31 @@ struct ControlPanelView: View {
         portraitButtons
     }
 
-    private var compactStackedButtons: some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 10) {
-                characterButton(width: nil)
-                    .frame(maxWidth: .infinity)
-                settingsButton(width: nil)
-                    .frame(maxWidth: .infinity)
-            }
+    private var compactLandscapeContent: some View {
+        GeometryReader { geo in
+            let spacing: CGFloat = 8
+            let dialogueHeight: CGFloat = 64
+            let actionRowHeight: CGFloat = 58
+            let availableHeight = max(geo.size.height, 0)
+            let startHeight = max(availableHeight - dialogueHeight - actionRowHeight - spacing * 2, 48)
 
-            startStopButton(height: 52)
+            VStack(spacing: spacing) {
+                dialogueBubble
+                    .frame(height: dialogueHeight, alignment: .center)
+
+                HStack(spacing: 10) {
+                    characterButton(width: nil)
+                        .frame(maxWidth: .infinity)
+                    settingsButton(width: nil)
+                        .frame(maxWidth: .infinity)
+                }
+                .frame(height: actionRowHeight)
+
+                startStopButton(height: startHeight)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .padding(.horizontal, horizontalPadding)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var portraitButtons: some View {
