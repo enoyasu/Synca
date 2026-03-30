@@ -13,42 +13,45 @@ struct MainView: View {
             // ─── 背景 ───
             backgroundLayer
 
-            // ─── コンテンツ ───
-            VStack(spacing: 0) {
-                // 上部：AdMobバナー
-                AdBannerView(isHidden: viewModel.isPremium)
+            GeometryReader { proxy in
+                let isCompactHeight = proxy.size.height < 760
+                let characterHeight: CGFloat = isCompactHeight ? 220 : 280
 
-                // ヘッダー
-                headerBar
-                    .padding(.horizontal, 20)
-                    .padding(.top, 8)
+                ScrollView(.vertical, showsIndicators: isCompactHeight) {
+                    VStack(spacing: 0) {
+                        // 上部：AdMobバナー
+                        AdBannerView(isHidden: viewModel.isPremium)
 
-                Spacer()
+                        // ヘッダー
+                        headerBar
+                            .padding(.horizontal, 20)
+                            .padding(.top, 8)
 
-                // キャラクター
-                CharacterView(
-                    character: viewModel.currentCharacter,
-                    state: viewModel.emotionState,
-                    animationState: viewModel.characterAnimationState,
-                    gauge: viewModel.emotionGauge
-                )
-                .frame(height: 280)
+                        // キャラクター
+                        CharacterView(
+                            character: viewModel.currentCharacter,
+                            state: viewModel.emotionState,
+                            animationState: viewModel.characterAnimationState,
+                            gauge: viewModel.emotionGauge
+                        )
+                        .frame(height: characterHeight)
+                        .padding(.top, isCompactHeight ? 8 : 24)
 
-                Spacer(minLength: 20)
+                        // 感情ゲージ
+                        EmotionGaugeView(
+                            gauge: viewModel.emotionGauge,
+                            state: viewModel.emotionState
+                        )
+                        .padding(.horizontal, 20)
+                        .padding(.top, isCompactHeight ? 8 : 16)
 
-                // 感情ゲージ
-                EmotionGaugeView(
-                    gauge: viewModel.emotionGauge,
-                    state: viewModel.emotionState
-                )
-                .padding(.horizontal, 20)
-
-                // コントロールパネル
-                ControlPanelView()
-                    .padding(.top, 12)
-
-                // ホームインジケーター用スペーサー
-                Spacer(minLength: 8)
+                        // コントロールパネル
+                        ControlPanelView()
+                            .padding(.top, isCompactHeight ? 6 : 12)
+                    }
+                    .frame(minHeight: proxy.size.height - proxy.safeAreaInsets.top, alignment: .top)
+                    .padding(.bottom, max(proxy.safeAreaInsets.bottom, 12))
+                }
             }
         }
         .ignoresSafeArea(edges: .top)
@@ -136,6 +139,8 @@ struct MainView: View {
                 Text(viewModel.currentCharacter.name)
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(.white.opacity(0.8))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)

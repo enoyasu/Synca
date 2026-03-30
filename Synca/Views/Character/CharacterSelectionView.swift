@@ -125,10 +125,14 @@ struct CharacterSelectionView: View {
                 Text("広告を削除")
                     .font(.system(size: 15, weight: .bold))
                     .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                 Text("¥250でずっと広告なし体験")
                     .font(.system(size: 12))
                     .foregroundColor(.white.opacity(0.65))
+                    .lineLimit(2)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             Spacer()
 
