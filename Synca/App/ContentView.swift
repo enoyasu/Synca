@@ -114,7 +114,7 @@ private struct HomeEntryView: View {
             let horizontalPadding: CGFloat = safeWidth < 360 ? 16 : 24
             let contentWidth = min(max(safeWidth - horizontalPadding * 2, 0), 320)
 
-            ZStack(alignment: .topLeading) {
+            ZStack {
                 LinearGradient(
                     colors: [Color(hex: "070715"), Color(hex: "171732"), Color(hex: "090919")],
                     startPoint: .topLeading,
@@ -139,20 +139,19 @@ private struct HomeEntryView: View {
                                 endPoint: .bottom
                             )
                         )
-                        .frame(maxWidth: .infinity, alignment: .leading)
 
                     Text(tapHint)
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white.opacity(0.92))
+                        .multilineTextAlignment(.center)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
                         .glassCard(cornerRadius: 14)
                         .scaleEffect(pulse ? 1.03 : 0.97)
                         .opacity(pulse ? 1.0 : 0.82)
                         .animation(.easeInOut(duration: 0.95).repeatForever(autoreverses: true), value: pulse)
-                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(width: contentWidth, alignment: .leading)
+                .frame(width: contentWidth)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 .padding(.horizontal, horizontalPadding)
             }
