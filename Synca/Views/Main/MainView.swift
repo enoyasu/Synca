@@ -96,6 +96,8 @@ struct MainView: View {
     }
 
     private func portraitContent(metrics: MainLayoutMetrics, language: AppLanguage) -> some View {
+        let panelSpacing: CGFloat = metrics.isCompactHeight ? 8 : 12
+
         VStack(spacing: 0) {
             headerBar(layoutWidth: metrics.portraitContentWidth, language: language)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -120,14 +122,14 @@ struct MainView: View {
                 pulseStrength: viewModel.gaugePulseStrength
             )
             .frame(maxWidth: .infinity)
-            .padding(.top, metrics.isCompactHeight ? 8 : 16)
+            .padding(.top, panelSpacing)
 
             ControlPanelView(
                 horizontalPadding: 0,
                 layoutWidth: metrics.portraitContentWidth
             )
             .frame(maxWidth: .infinity)
-            .padding(.top, metrics.isCompactHeight ? 6 : 12)
+            .padding(.top, panelSpacing)
         }
         .frame(width: metrics.portraitContentWidth, alignment: .topLeading)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -137,13 +139,13 @@ struct MainView: View {
         GeometryReader { geo in
             let availableHeight = max(geo.size.height - 8, 0)
             let headerEstimatedHeight: CGFloat = metrics.landscapeLeftColumnWidth < 360 ? 78 : 52
-            let leftSpacing: CGFloat = 8
+            let leftSpacing: CGFloat = 6
             let characterHeight = max(
                 min(metrics.landscapeCharacterHeight, availableHeight - headerEstimatedHeight - leftSpacing),
                 160
             )
 
-            let rightSpacing: CGFloat = 4
+            let rightSpacing: CGFloat = 6
             let gaugeHeight = max(min(availableHeight * 0.38, 168), 100)
             let controlHeight = max(availableHeight - gaugeHeight - rightSpacing, 116)
 
@@ -184,7 +186,7 @@ struct MainView: View {
                 .frame(width: metrics.landscapeRightColumnWidth, alignment: .topLeading)
             }
             .frame(width: metrics.landscapeContainerWidth, alignment: .leading)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .padding(.top, 8)
         }
     }
@@ -324,11 +326,11 @@ private struct MainLayoutMetrics {
             ? (safeWidth < 360 ? 200 : 220)
             : (safeWidth < 360 ? 250 : 280)
         landscapeSpacing = safeWidth < 780 ? 10 : 14
-        landscapeContainerWidth = safeWidth > 1000 ? min(usableWidth, 940) : min(usableWidth, 860)
+        landscapeContainerWidth = safeWidth > 1000 ? min(usableWidth, 960) : min(usableWidth, 900)
 
         let totalColumnWidth = max(landscapeContainerWidth - landscapeSpacing, 0)
         let minColumnWidth: CGFloat = 240
-        let targetLeftRatio: CGFloat = safeWidth >= 900 ? 0.6 : 0.56
+        let targetLeftRatio: CGFloat = safeWidth >= 900 ? 0.57 : 0.53
         if totalColumnWidth >= minColumnWidth * 2 {
             let raw = totalColumnWidth * targetLeftRatio
             landscapeLeftColumnWidth = min(max(raw, minColumnWidth), totalColumnWidth - minColumnWidth)
