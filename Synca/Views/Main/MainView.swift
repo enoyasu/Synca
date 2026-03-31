@@ -163,6 +163,7 @@ struct MainView: View {
                 .frame(width: metrics.landscapeLeftColumnWidth, alignment: .topLeading)
 
                 // ゲージを自然高さで配置し、直下にコントロールを密着させる
+                // VStack に availableHeight を明示し、内部 GeometryReader が正確な残余高さを取得できるようにする
                 VStack(spacing: 4) {
                     EmotionGaugeView(
                         gauge: viewModel.emotionGauge,
@@ -181,7 +182,7 @@ struct MainView: View {
                     )
                     .frame(maxHeight: .infinity, alignment: .top)
                 }
-                .frame(width: metrics.landscapeRightColumnWidth, alignment: .topLeading)
+                .frame(width: metrics.landscapeRightColumnWidth, height: availableHeight, alignment: .topLeading)
             }
             .frame(width: metrics.landscapeContainerWidth, alignment: .leading)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

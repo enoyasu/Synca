@@ -44,11 +44,14 @@ struct ControlPanelView: View {
 
     private var compactLandscapeContent: some View {
         GeometryReader { geo in
-            let spacing: CGFloat = 8
-            let dialogueHeight: CGFloat = 64
-            let actionRowHeight: CGFloat = 58
+            // spacing・各セクション高さをコンパクトにし、合計が availableHeight を超えないようにする
+            // 旧値: spacing=8, dialogue=64, action=58, minStart=48 → min合計186pt でオーバーフロー
+            // 新値: spacing=6, dialogue=56, action=50, minStart=36 → min合計148pt に削減
+            let spacing: CGFloat = 6
+            let dialogueHeight: CGFloat = 56
+            let actionRowHeight: CGFloat = 50
             let availableHeight = max(geo.size.height, 0)
-            let startHeight = max(availableHeight - dialogueHeight - actionRowHeight - spacing * 2, 48)
+            let startHeight = max(availableHeight - dialogueHeight - actionRowHeight - spacing * 2, 36)
 
             VStack(spacing: spacing) {
                 dialogueBubble
