@@ -146,10 +146,6 @@ struct MainView: View {
                 160
             )
 
-            let rightSpacing: CGFloat = 8
-            let gaugeHeight = max(min(availableHeight * 0.31, 146), 96)
-            let controlHeight = max(availableHeight - gaugeHeight - rightSpacing, 116)
-
             HStack(alignment: .top, spacing: metrics.landscapeSpacing) {
                 VStack(spacing: leftSpacing) {
                     headerBar(layoutWidth: metrics.landscapeLeftColumnWidth, language: language)
@@ -166,7 +162,8 @@ struct MainView: View {
                 }
                 .frame(width: metrics.landscapeLeftColumnWidth, alignment: .topLeading)
 
-                VStack(spacing: rightSpacing) {
+                // ゲージを自然高さで配置し、直下にコントロールを密着させる
+                VStack(spacing: 4) {
                     EmotionGaugeView(
                         gauge: viewModel.emotionGauge,
                         state: viewModel.emotionState,
@@ -175,14 +172,14 @@ struct MainView: View {
                         pulseStrength: viewModel.gaugePulseStrength,
                         compactMode: true
                     )
-                    .frame(height: gaugeHeight, alignment: .top)
+                    // 固定高さを廃止し自然サイズに委ねることでカード下の余白を除去
 
                     ControlPanelView(
                         horizontalPadding: 0,
                         layoutWidth: metrics.landscapeRightColumnWidth,
                         compactMode: true
                     )
-                    .frame(height: controlHeight, alignment: .top)
+                    .frame(maxHeight: .infinity, alignment: .top)
                 }
                 .frame(width: metrics.landscapeRightColumnWidth, alignment: .topLeading)
             }
