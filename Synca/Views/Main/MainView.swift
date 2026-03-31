@@ -193,7 +193,8 @@ struct MainView: View {
     // MARK: - Header
 
     private func headerBar(layoutWidth: CGFloat, language: AppLanguage) -> some View {
-        let badgeWidth = max(min(layoutWidth * (layoutWidth < 360 ? 0.72 : 0.48), 240), 96)
+        // 横画面の広い左カラムではバッジを大きく表示（0.70 × 最大 400pt）
+        let badgeWidth = max(min(layoutWidth * (layoutWidth < 360 ? 0.72 : 0.70), 400), 96)
 
         return HStack(spacing: 10) {
             currentCharacterBadge(maxWidth: badgeWidth)
@@ -278,9 +279,12 @@ private struct MainLayoutMetrics {
         isCompactHeight = proxy.size.height < 760
         safeWidth = max(proxy.size.width - proxy.safeAreaInsets.leading - proxy.safeAreaInsets.trailing, 0)
         safeHeight = max(proxy.size.height - proxy.safeAreaInsets.top - proxy.safeAreaInsets.bottom, 0)
-        baseHorizontalPadding = safeWidth < 360 ? 10 : (safeWidth < 420 ? 12 : 16)
-        let requestedBias: CGFloat = isLandscape ? 7 : 10
-        leftBias = min(requestedBias, max(safeWidth * 0.08, 0))
+        // 横画面は余白を最小化して全幅を活かす。縦画面は従来値を維持。
+        baseHorizontalPadding = isLandscape
+            ? (safeWidth < 360 ? 4 : 6)
+            : (safeWidth < 360 ? 10 : (safeWidth < 420 ? 12 : 16))
+        // 横画面は leftBias 不要（中央寄りの非対称補正をなくす）
+        leftBias = isLandscape ? 0 : min(CGFloat(10), max(safeWidth * 0.08, 0))
         usableWidth = max(safeWidth - baseHorizontalPadding * 2 - leftBias, 0)
         let portraitBaseWidth = safeWidth > 700 ? min(usableWidth, 400) : min(usableWidth, 440)
         let portraitMaxWidthWithinPadding = max(safeWidth - baseHorizontalPadding * 2, 0)
@@ -288,12 +292,15 @@ private struct MainLayoutMetrics {
         portraitCharacterHeight = isCompactHeight
             ? (safeWidth < 360 ? 200 : 220)
             : (safeWidth < 360 ? 250 : 280)
-        landscapeSpacing = safeWidth < 780 ? 10 : 14
+        landscapeSpacing = 10   // 均一化してカラム幅を最大化
         landscapeContainerWidth = safeWidth > 1000 ? min(usableWidth, 960) : min(usableWidth, 900)
 
         let totalColumnWidth = max(landscapeContainerWidth - landscapeSpacing, 0)
         let minColumnWidth: CGFloat = 240
-        let targetLeftRatio: CGFloat = safeWidth >= 900 ? 0.57 : 0.53
+        // 横画面：左カラム（キャラ）を 60-62% に拡大して画面を広く使う
+        let targetLeftRatio: CGFloat = isLandscape
+            ? (safeWidth >= 900 ? 0.62 : 0.60)
+            : (safeWidth >= 900 ? 0.57 : 0.53)
         if totalColumnWidth >= minColumnWidth * 2 {
             let raw = totalColumnWidth * targetLeftRatio
             landscapeLeftColumnWidth = min(max(raw, minColumnWidth), totalColumnWidth - minColumnWidth)
@@ -301,8 +308,9 @@ private struct MainLayoutMetrics {
             landscapeLeftColumnWidth = totalColumnWidth * 0.52
         }
         landscapeRightColumnWidth = max(totalColumnWidth - landscapeLeftColumnWidth, 0)
-        landscapeCharacterHeight = max(min(proxy.size.height * 0.54, 330), 190)
-        landscapeCharacterScaleBoost = safeWidth >= 900 ? 1.2 : (safeWidth >= 760 ? 1.16 : 1.1)
+        // キャラ高さを画面高さの 70% に拡大（最大 380pt）
+        landscapeCharacterHeight = max(min(proxy.size.height * 0.70, 380), 200)
+        landscapeCharacterScaleBoost = safeWidth >= 900 ? 1.28 : (safeWidth >= 760 ? 1.22 : 1.18)
         topInset = max(proxy.safeAreaInsets.top, 8)
         bottomInset = isLandscape ? max(proxy.safeAreaInsets.bottom, 4) : max(proxy.safeAreaInsets.bottom, 12)
         minContentHeight = max(safeHeight, 0)
