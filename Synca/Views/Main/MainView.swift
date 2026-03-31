@@ -281,7 +281,7 @@ private struct MainLayoutMetrics {
         safeHeight = max(proxy.size.height - proxy.safeAreaInsets.top - proxy.safeAreaInsets.bottom, 0)
         // 横画面は余白を最小化して全幅を活かす。縦画面は従来値を維持。
         baseHorizontalPadding = isLandscape
-            ? (safeWidth < 360 ? 2 : 4)
+            ? 0
             : (safeWidth < 360 ? 10 : (safeWidth < 420 ? 12 : 16))
         // 横画面は leftBias 不要（中央寄りの非対称補正をなくす）
         leftBias = isLandscape ? 0 : min(CGFloat(10), max(safeWidth * 0.08, 0))
@@ -293,7 +293,7 @@ private struct MainLayoutMetrics {
             ? (safeWidth < 360 ? 200 : 220)
             : (safeWidth < 360 ? 250 : 280)
         landscapeSpacing = 10   // 均一化してカラム幅を最大化
-        landscapeContainerWidth = usableWidth
+        landscapeContainerWidth = safeWidth
 
         let totalColumnWidth = max(landscapeContainerWidth - landscapeSpacing, 0)
         let minColumnWidth: CGFloat = 240
