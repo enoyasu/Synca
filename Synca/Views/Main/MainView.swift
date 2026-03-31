@@ -194,7 +194,7 @@ struct MainView: View {
 
     private func headerBar(layoutWidth: CGFloat, language: AppLanguage) -> some View {
         // 横画面の広い左カラムではバッジを大きく表示（0.70 × 最大 400pt）
-        let badgeWidth = max(min(layoutWidth * (layoutWidth < 360 ? 0.72 : 0.70), 400), 96)
+        let badgeWidth = layoutWidth
 
         return HStack(spacing: 10) {
             currentCharacterBadge(maxWidth: badgeWidth)
@@ -281,7 +281,7 @@ private struct MainLayoutMetrics {
         safeHeight = max(proxy.size.height - proxy.safeAreaInsets.top - proxy.safeAreaInsets.bottom, 0)
         // 横画面は余白を最小化して全幅を活かす。縦画面は従来値を維持。
         baseHorizontalPadding = isLandscape
-            ? (safeWidth < 360 ? 4 : 6)
+            ? (safeWidth < 360 ? 2 : 4)
             : (safeWidth < 360 ? 10 : (safeWidth < 420 ? 12 : 16))
         // 横画面は leftBias 不要（中央寄りの非対称補正をなくす）
         leftBias = isLandscape ? 0 : min(CGFloat(10), max(safeWidth * 0.08, 0))
