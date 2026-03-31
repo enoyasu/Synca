@@ -164,7 +164,7 @@ struct MainView: View {
 
                 // ゲージを自然高さで配置し、直下にコントロールを密着させる
                 // VStack に availableHeight を明示し、内部 GeometryReader が正確な残余高さを取得できるようにする
-                VStack(spacing: 4) {
+                VStack(spacing: 14) {
                     EmotionGaugeView(
                         gauge: viewModel.emotionGauge,
                         state: viewModel.emotionState,
@@ -293,7 +293,7 @@ private struct MainLayoutMetrics {
             ? (safeWidth < 360 ? 200 : 220)
             : (safeWidth < 360 ? 250 : 280)
         landscapeSpacing = 10   // 均一化してカラム幅を最大化
-        landscapeContainerWidth = safeWidth > 1000 ? min(usableWidth, 960) : min(usableWidth, 900)
+        landscapeContainerWidth = usableWidth
 
         let totalColumnWidth = max(landscapeContainerWidth - landscapeSpacing, 0)
         let minColumnWidth: CGFloat = 240
